@@ -1,10 +1,5 @@
-export default class PointView {
-    constructor() {
-        this.element = null;
-    }
-
-    getTemplate() {
-        return `
+function pointTemplate() {
+    return `
             <li class="trip-events__item">
                 <div class="event">
                 <time class="event__date" datetime="2019-03-18">MAR 18</time>
@@ -43,6 +38,15 @@ export default class PointView {
                 </div>
             </li>
         `;
+}
+
+export default class PointView {
+    constructor() {
+        this.element = null;
+    }
+
+    getTemplate() {
+        return pointTemplate();
     }
 
     getElement() {

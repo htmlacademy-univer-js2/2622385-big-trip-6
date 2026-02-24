@@ -1,10 +1,5 @@
-export default class AddNewPointView {
-    constructor() {
-        this.element = null;
-    }
-
-    getTemplate() {
-        return `
+function addNewPointTemplate() {
+    return `
             <li class="trip-events__item">
             <form class="event event--edit" action="#" method="post">
             <header class="event__header">
@@ -168,6 +163,15 @@ export default class AddNewPointView {
             </form>
         </li>
         `;
+}
+
+export default class AddNewPointView {
+    constructor() {
+        this.element = null;
+    }
+
+    getTemplate() {
+        return addNewPointTemplate
     }
 
     getElement() {
