@@ -1,5 +1,6 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     entry: './src/main.js', 
@@ -28,13 +29,19 @@ module.exports = {
     },
 
     plugins: [
-    new CopyWebpackPlugin({
-        patterns: [
-            { 
-            from: 'public',  // откуда копируем
-            to: '.'          // куда (корень build папки)
-            }
-        ]
+        new HtmlWebpackPlugin({
+            template: './public/index.html', // Берем ваш index.html как шаблон
+            filename: 'index.html' // Создаем новый index.html с подключенным скриптом
+        }),
+        new CopyWebpackPlugin({
+            patterns: [{ 
+                    from: 'public',
+                    to: '.',
+                    globOptions: {
+                        ignore: ['**/index.html'] // Игнорируем index.html, т.к. его генерирует HtmlWebpackPlugin
+                    }
+                }
+            ]
         })
     ]
 };
