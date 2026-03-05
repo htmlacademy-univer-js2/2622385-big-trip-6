@@ -43,7 +43,6 @@ export default class TripModel {
     return this.points.find(point => point.id === id);
   }
 
-  // Для точки маршрута получаем полные данные (связанные)
   getFullPointData(pointId) {
     const point = this.getPointById(pointId);
     if (!point) return null;
