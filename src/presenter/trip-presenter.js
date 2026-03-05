@@ -7,51 +7,51 @@ import PointEditView from '../view/point-edit-view.js';      // Форма ре�
 const POINT_COUNT = 3
 
 export default class TripPresenter {
-    constructor() {
-        this.container = null;
-        this.filtersContainer = null;
+  constructor() {
+    this.container = null;
+    this.filtersContainer = null;
+  }
+
+  init() {
+    this.container = document.querySelector('.trip-events');
+    this.filtersContainer = document.querySelector('.trip-controls__filters');
+
+    if (!this.container) {
+      console.error('Container .trip-events not found!');
+      return;
     }
 
-    init() {
-        this.container = document.querySelector('.trip-events');
-        this.filtersContainer = document.querySelector('.trip-controls__filters');
+    this.container.innerHTML = '';
 
-        if (!this.container) {
-            console.error('Container .trip-events not found!');
-            return;
-        }
+    this.renderFilters();
 
-        this.container.innerHTML = '';
+    const sortingView = new SortingView();
+    this.container.appendChild(sortingView.getElement());
 
-        this.renderFilters();
+    const eventsList = document.createElement('ul');
+    eventsList.classList.add('trip-events__list');
+    this.container.appendChild(eventsList);
 
-        const sortingView = new SortingView();
-        this.container.appendChild(sortingView.getElement());
+    const pointEditView = new PointEditView();
+    eventsList.appendChild(pointEditView.getElement());
 
-        const eventsList = document.createElement('ul');
-        eventsList.classList.add('trip-events__list');
-        this.container.appendChild(eventsList);
-
-        const pointEditView = new PointEditView();
-        eventsList.appendChild(pointEditView.getElement());
-
-        for (let i = 0; i < POINT_COUNT; i++) {
-            const pointView = new PointView();
-            eventsList.appendChild(pointView.getElement());
-        }
+    for (let i = 0; i < POINT_COUNT; i++) {
+      const pointView = new PointView();
+      eventsList.appendChild(pointView.getElement());
     }
+  }
 
-    renderFilters() {
-        if (this.filtersContainer) {
-            const filtersView = new FiltersView();
-            this.filtersContainer.innerHTML = ''; 
-            this.filtersContainer.appendChild(filtersView.getElement());
-        }
+  renderFilters() {
+    if (this.filtersContainer) {
+      const filtersView = new FiltersView();
+      this.filtersContainer.innerHTML = ''; 
+      this.filtersContainer.appendChild(filtersView.getElement());
     }
+  }
 
-    createNewPoint() {
-        const eventsList = this.container.querySelector('.trip-events__list');
-        const addNewPointView = new AddNewPointView();
-        eventsList.prepend(addNewPointView.getElement()); 
-    }
+  createNewPoint() {
+    const eventsList = this.container.querySelector('.trip-events__list');
+    const addNewPointView = new AddNewPointView();
+    eventsList.prepend(addNewPointView.getElement()); 
+  }
 }
