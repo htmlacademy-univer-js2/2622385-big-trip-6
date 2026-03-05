@@ -1,57 +1,80 @@
 import FiltersView from '../view/filters-view.js';
 import SortingView from '../view/sorting-view.js';
 import PointView from '../view/point-view.js';
-import AddNewPointView from '../view/add-new-point-view.js'; // Форма создания
-import PointEditView from '../view/point-edit-view.js';      // Форма редактирования
-
-const POINT_COUNT = 3
+import PointEditView from '../view/point-edit-view.js';
+import TripModel from '../model/trip-model.js';
+import { getRandomArrayElement } from '../utils.js'; 
 
 export default class TripPresenter {
-    constructor() {
-        this.container = null;
-        this.filtersContainer = null;
+  constructor() {
+    this.container = null;
+    this.filtersContainer = null;
+    this.model = new TripModel();
+  }
+
+  init() {
+    this.container = document.querySelector('.trip-events');
+    this.filtersContainer = document.querySelector('.trip-controls__filters');
+    
+    if (!this.container) {
+      console.error('Container .trip-events not found!');
+      return;
     }
 
-    init() {
-        this.container = document.querySelector('.trip-events');
-        this.filtersContainer = document.querySelector('.trip-controls__filters');
+    this.render();
+  }
 
-        if (!this.container) {
-            console.error('Container .trip-events not found!');
-            return;
-        }
+  render() {
+    this.container.innerHTML = '';
+    
+    this.renderFilters();
 
-        this.container.innerHTML = '';
+    const sortingView = new SortingView();
+    this.container.appendChild(sortingView.getElement());
 
-        this.renderFilters();
+    const points = this.model.getPoints();
+    const destinations = this.model.getDestinations();
+    const offers = this.model.getOffers();
 
-        const sortingView = new SortingView();
-        this.container.appendChild(sortingView.getElement());
-
-        const eventsList = document.createElement('ul');
-        eventsList.classList.add('trip-events__list');
-        this.container.appendChild(eventsList);
-
-        const pointEditView = new PointEditView();
-        eventsList.appendChild(pointEditView.getElement());
-
-        for (let i = 0; i < POINT_COUNT; i++) {
-            const pointView = new PointView();
-            eventsList.appendChild(pointView.getElement());
-        }
+    if (points.length === 0) {
+      this.container.innerHTML += '<h2 class="trip-events__title">No events</h2>';
+      return;
     }
 
-    renderFilters() {
-        if (this.filtersContainer) {
-            const filtersView = new FiltersView();
-            this.filtersContainer.innerHTML = ''; 
-            this.filtersContainer.appendChild(filtersView.getElement());
-        }
-    }
+    const eventsList = document.createElement('ul');
+    eventsList.classList.add('trip-events__list');
+    this.container.appendChild(eventsList);
 
-    createNewPoint() {
-        const eventsList = this.container.querySelector('.trip-events__list');
-        const addNewPointView = new AddNewPointView();
-        eventsList.prepend(addNewPointView.getElement()); 
+    const randomPoint = getRandomArrayElement(points);
+    console.log('Random point for edit:', randomPoint); 
+
+    const destination = this.model.getDestinationById(randomPoint.destinationId);
+    const pointOffers = this.model.getOffersByIds(randomPoint.offerIds);
+
+    const editView = new PointEditView(
+      randomPoint, 
+      destinations, 
+      (type) => this.model.getOffersByType(type),
+      offers
+    );
+    eventsList.appendChild(editView.getElement());
+
+    const otherPoints = points.filter(point => point.id !== randomPoint.id);
+    
+    otherPoints.forEach(point => {
+      const destination = this.model.getDestinationById(point.destinationId);
+      const pointOffers = this.model.getOffersByIds(point.offerIds);
+      
+      const pointView = new PointView(point, destination, pointOffers);
+      eventsList.appendChild(pointView.getElement());
+    });
+  }
+
+  renderFilters() {
+    if (this.filtersContainer) {
+      const filtersView = new FiltersView();
+      this.filtersContainer.innerHTML = ''; 
+      this.filtersContainer.appendChild(filtersView.getElement());
     }
+  }
 }
