@@ -1,14 +1,16 @@
 import Destination from './destination-model.js';
 import Offer from './offer-model.js';
 import Point from './point-model.js';
-import { PointType } from './const.js';
+import {getRandomArrayElement} from '../utils.js';
+import { pointType as PointType } from './const.js';
+import { Descriptions } from './const.js';
 
 // Моковые данные для пунктов назначения с локальными картинками
 export const mockDestinations = [
   new Destination(
     'dest-1',
     'Chamonix',
-    'Chamonix, is a beautiful city, a true asian pearl, with crowded streets.',
+    getRandomArrayElement(Descriptions),
     [
       { src: 'img/photos/1.jpg', description: 'Chamonix mountain view' },
       { src: 'img/photos/2.jpg', description: 'Chamonix town center' },
@@ -18,7 +20,7 @@ export const mockDestinations = [
   new Destination(
     'dest-2',
     'Geneva',
-    'Geneva is a city in Switzerland that lies at the southern tip of expansive Lac Léman.',
+    getRandomArrayElement(Descriptions),
     [
       { src: 'img/photos/2.jpg', description: 'Geneva lake' },
       { src: 'img/photos/4.jpg', description: 'Geneva fountain' },
@@ -28,7 +30,7 @@ export const mockDestinations = [
   new Destination(
     'dest-3',
     'Amsterdam',
-    'Amsterdam is the capital city of the Netherlands, known for its artistic heritage and canal system.',
+    getRandomArrayElement(Descriptions),
     [
       { src: 'img/photos/3.jpg', description: 'Amsterdam canal' },
       { src: 'img/photos/1.jpg', description: 'Amsterdam museums' },
@@ -38,7 +40,7 @@ export const mockDestinations = [
   new Destination(
     'dest-4',
     'Berlin',
-    'Berlin, Germany\'s capital, dates to the 13th century. Reminders of the city\'s turbulent 20th-century history include its Holocaust memorial and the Berlin Wall\'s graffitied remains.',
+    getRandomArrayElement(Descriptions),
     [
       { src: 'img/photos/4.jpg', description: 'Berlin wall' },
       { src: 'img/photos/2.jpg', description: 'Brandenburg gate' },
@@ -47,7 +49,6 @@ export const mockDestinations = [
   )
 ];
 
-// Остальные моковые данные остаются без изменений...
 export const mockOffers = [
   new Offer('offer-1', 'Upgrade to a business class', 120, PointType.TAXI),
   new Offer('offer-2', 'Add luggage', 50, PointType.TAXI),
@@ -71,7 +72,7 @@ export const mockPoints = [
   new Point(
     'point-1',
     PointType.TAXI,
-    'dest-1', // Chamonix
+    'dest-1', 
     1100,
     '2019-07-10T22:55:56.845Z',
     '2019-07-11T11:22:13.375Z',
@@ -81,7 +82,7 @@ export const mockPoints = [
   new Point(
     'point-2',
     PointType.FLIGHT,
-    'dest-2', // Geneva
+    'dest-2', 
     2500,
     '2019-07-12T08:30:00.000Z',
     '2019-07-12T13:45:00.000Z',
@@ -91,7 +92,7 @@ export const mockPoints = [
   new Point(
     'point-3',
     PointType.TRAIN,
-    'dest-3', // Amsterdam
+    'dest-3', 
     850,
     '2019-07-13T14:20:00.000Z',
     '2019-07-13T18:10:00.000Z',
@@ -101,7 +102,7 @@ export const mockPoints = [
   new Point(
     'point-4',
     PointType.BUS,
-    'dest-4', // Berlin
+    'dest-4', 
     350,
     '2019-07-14T09:15:00.000Z',
     '2019-07-14T12:30:00.000Z',
@@ -111,7 +112,7 @@ export const mockPoints = [
   new Point(
     'point-5',
     PointType.SHIP,
-    'dest-2', // Geneva
+    'dest-2',
     1800,
     '2019-07-15T10:00:00.000Z',
     '2019-07-15T16:30:00.000Z',
@@ -120,7 +121,6 @@ export const mockPoints = [
   )
 ];
 
-// Вспомогательные функции
 export const getDestinations = () => mockDestinations;
 export const getOffers = () => mockOffers;
 export const getOffersByType = (type) => mockOffers.filter(offer => offer.type === type);

@@ -3,6 +3,7 @@ import SortingView from '../view/sorting-view.js';
 import PointView from '../view/point-view.js';
 import PointEditView from '../view/point-edit-view.js';
 import TripModel from '../model/trip-model.js';
+import { getRandomArrayElement } from '../utils.js'; 
 
 export default class TripPresenter {
   constructor() {
@@ -44,21 +45,23 @@ export default class TripPresenter {
     eventsList.classList.add('trip-events__list');
     this.container.appendChild(eventsList);
 
-    if (points.length > 0) {
-      const firstPoint = points[0];
-      const destination = this.model.getDestinationById(firstPoint.destinationId);
-      const pointOffers = this.model.getOffersByIds(firstPoint.offerIds);
-      
-      const editView = new PointEditView(
-        firstPoint, 
-        destinations, 
-        (type) => this.model.getOffersByType(type),
-        offers
-      );
-      eventsList.appendChild(editView.getElement());
-    }
+    const randomPoint = getRandomArrayElement(points);
+    console.log('Random point for edit:', randomPoint); 
 
-    points.slice(1).forEach(point => {
+    const destination = this.model.getDestinationById(randomPoint.destinationId);
+    const pointOffers = this.model.getOffersByIds(randomPoint.offerIds);
+
+    const editView = new PointEditView(
+      randomPoint, 
+      destinations, 
+      (type) => this.model.getOffersByType(type),
+      offers
+    );
+    eventsList.appendChild(editView.getElement());
+
+    const otherPoints = points.filter(point => point.id !== randomPoint.id);
+    
+    otherPoints.forEach(point => {
       const destination = this.model.getDestinationById(point.destinationId);
       const pointOffers = this.model.getOffersByIds(point.offerIds);
       
@@ -70,7 +73,7 @@ export default class TripPresenter {
   renderFilters() {
     if (this.filtersContainer) {
       const filtersView = new FiltersView();
-      this.filtersContainer.innerHTML = '';
+      this.filtersContainer.innerHTML = ''; 
       this.filtersContainer.appendChild(filtersView.getElement());
     }
   }
