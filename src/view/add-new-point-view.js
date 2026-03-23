@@ -171,7 +171,7 @@ export default class AddNewPointView {
   }
 
   getTemplate() {
-    return addNewPointTemplate
+    return addNewPointTemplate;
   }
 
   getElement() {

@@ -3,7 +3,7 @@ import SortingView from '../view/sorting-view.js';
 import PointView from '../view/point-view.js';
 import PointEditView from '../view/point-edit-view.js';
 import TripModel from '../model/trip-model.js';
-import { getRandomArrayElement } from '../utils.js'; 
+import { getRandomArrayElement } from '../utils.js';
 
 export default class TripPresenter {
   constructor() {
@@ -15,9 +15,7 @@ export default class TripPresenter {
   init() {
     this.container = document.querySelector('.trip-events');
     this.filtersContainer = document.querySelector('.trip-controls__filters');
-    
     if (!this.container) {
-      console.error('Container .trip-events not found!');
       return;
     }
 
@@ -26,7 +24,6 @@ export default class TripPresenter {
 
   render() {
     this.container.innerHTML = '';
-    
     this.renderFilters();
 
     const sortingView = new SortingView();
@@ -46,25 +43,19 @@ export default class TripPresenter {
     this.container.appendChild(eventsList);
 
     const randomPoint = getRandomArrayElement(points);
-    console.log('Random point for edit:', randomPoint); 
-
-    const destination = this.model.getDestinationById(randomPoint.destinationId);
-    const pointOffers = this.model.getOffersByIds(randomPoint.offerIds);
 
     const editView = new PointEditView(
-      randomPoint, 
-      destinations, 
+      randomPoint,
+      destinations,
       (type) => this.model.getOffersByType(type),
       offers
     );
     eventsList.appendChild(editView.getElement());
 
-    const otherPoints = points.filter(point => point.id !== randomPoint.id);
-    
-    otherPoints.forEach(point => {
+    const otherPoints = points.filter((point) => point.id !== randomPoint.id);
+    otherPoints.forEach((point) => {
       const destination = this.model.getDestinationById(point.destinationId);
       const pointOffers = this.model.getOffersByIds(point.offerIds);
-      
       const pointView = new PointView(point, destination, pointOffers);
       eventsList.appendChild(pointView.getElement());
     });
@@ -73,7 +64,7 @@ export default class TripPresenter {
   renderFilters() {
     if (this.filtersContainer) {
       const filtersView = new FiltersView();
-      this.filtersContainer.innerHTML = ''; 
+      this.filtersContainer.innerHTML = '';
       this.filtersContainer.appendChild(filtersView.getElement());
     }
   }

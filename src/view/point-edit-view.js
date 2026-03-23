@@ -3,7 +3,7 @@ export default class PointEditView {
     this.point = point;
     this.destinations = destinations;
     this.offersByType = offersByType;
-    this.allOffers = allOffers; 
+    this.allOffers = allOffers;
     this.isNew = isNew;
     this.element = null;
   }
@@ -13,16 +13,12 @@ export default class PointEditView {
       return this.getEmptyTemplate();
     }
 
-    const { point, destinations, allOffers } = this;
-    
-    const destination = destinations.find(d => d.id === point.destinationId) || 
+    const { point, destinations } = this;
+    const destination = destinations.find((d) => (d.id === point.destinationId)) ||
                        { id: '', name: '', description: '', pictures: [] };
-    
     const availableOffers = this.offersByType(point.type);
-    
     const dateFrom = new Date(point.dateFrom);
     const dateTo = new Date(point.dateTo);
-    
     const formatDate = (date) => {
       const day = date.getDate().toString().padStart(2, '0');
       const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -36,7 +32,7 @@ export default class PointEditView {
       <section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
         <div class="event__available-offers">
-          ${availableOffers.map(offer => `
+          ${availableOffers.map((offer) => `
             <div class="event__offer-selector">
               <input class="event__offer-checkbox  visually-hidden" 
                      id="event-offer-${offer.id}" 
@@ -54,14 +50,14 @@ export default class PointEditView {
       </section>
     ` : '';
 
-    const destinationsOptions = destinations.map(dest => 
+    const destinationsOptions = destinations.map((dest) =>
       `<option value="${dest.name}"></option>`
     ).join('');
 
     const photosHtml = destination.pictures && destination.pictures.length > 0 ? `
       <div class="event__photos-container">
         <div class="event__photos-tape">
-          ${destination.pictures.map(pic => `
+          ${destination.pictures.map((pic) => `
             <img class="event__photo" src="${pic.src}" alt="${pic.description || 'Event photo'}">
           `).join('')}
         </div>
@@ -169,7 +165,7 @@ export default class PointEditView {
                      list="destination-list-1"
                      placeholder="Enter destination">
               <datalist id="destination-list-1">
-                ${this.destinations.map(dest => `<option value="${dest.name}"></option>`).join('')}
+                ${this.destinations.map((dest) => `<option value="${dest.name}"></option>`).join('')}
               </datalist>
             </div>
 

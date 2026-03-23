@@ -3,9 +3,9 @@ function getRandomArrayElement(items) {
 }
 
 function getRandomObjectField(object) {
-    const values = Object.values(object);
-    return values[Math.floor(Math.random() * values.length)];
+  const values = Object.values(object);
+  return values[Math.floor(Math.random() * values.length)];
 }
 
 export {getRandomArrayElement};
-export {getRandomObjectField}
+export {getRandomObjectField};
