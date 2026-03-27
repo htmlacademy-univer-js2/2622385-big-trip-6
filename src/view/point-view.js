@@ -8,19 +8,16 @@ export default class PointView {
 
   getTemplate() {
     const { point, destination, offers } = this;
-    
     const dateFrom = new Date(point.dateFrom);
     const dateTo = new Date(point.dateTo);
-    
     const month = dateFrom.toLocaleString('en', { month: 'short' }).toUpperCase();
     const day = dateFrom.getDate().toString().padStart(2, '0');
-    
     const startTime = dateFrom.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
     const endTime = dateTo.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
 
     const offersHtml = offers.length > 0 ? `
       <ul class="event__selected-offers">
-        ${offers.map(offer => `
+        ${offers.map((offer) => `
           <li class="event__offer">
             <span class="event__offer-title">${offer.title}</span>
             &plus;&euro;&nbsp;

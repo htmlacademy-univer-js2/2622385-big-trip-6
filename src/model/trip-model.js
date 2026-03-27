@@ -1,10 +1,10 @@
-import { 
-  getDestinations, 
-  getOffers, 
+import {
+  getDestinations,
+  getOffers,
   getPoints,
   getDestinationById,
   getOffersByType,
-  getOffersByIds 
+  getOffersByIds
 } from './mock-data.js';
 
 export default class TripModel {
@@ -14,7 +14,6 @@ export default class TripModel {
     this.points = getPoints();
   }
 
-  // Геттеры
   getDestinations() {
     return this.destinations;
   }
@@ -40,12 +39,14 @@ export default class TripModel {
   }
 
   getPointById(id) {
-    return this.points.find(point => point.id === id);
+    return this.points.find((point) => point.id === id);
   }
 
   getFullPointData(pointId) {
     const point = this.getPointById(pointId);
-    if (!point) return null;
+    if (!point) {
+      return null;
+    }
 
     const destination = this.getDestinationById(point.destinationId);
     const offers = this.getOffersByIds(point.offerIds);

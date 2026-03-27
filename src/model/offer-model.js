@@ -3,6 +3,6 @@ export default class Offer {
     this.id = id;
     this.title = title;
     this.price = price;
-    this.type = type; 
+    this.type = type;
   }
 }

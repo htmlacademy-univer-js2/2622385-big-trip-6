@@ -5,7 +5,6 @@ import {getRandomArrayElement} from '../utils.js';
 import { pointType as PointType } from './const.js';
 import { Descriptions } from './const.js';
 
-// Моковые данные для пунктов назначения с локальными картинками
 export const mockDestinations = [
   new Destination(
     'dest-1',
@@ -53,17 +52,13 @@ export const mockOffers = [
   new Offer('offer-1', 'Upgrade to a business class', 120, PointType.TAXI),
   new Offer('offer-2', 'Add luggage', 50, PointType.TAXI),
   new Offer('offer-3', 'Choose the radio station', 15, PointType.TAXI),
-  
   new Offer('offer-4', 'Include breakfast', 25, PointType.BUS),
   new Offer('offer-5', 'WiFi onboard', 10, PointType.BUS),
-  
   new Offer('offer-6', 'First class', 150, PointType.TRAIN),
   new Offer('offer-7', 'Meal included', 30, PointType.TRAIN),
-  
   new Offer('offer-8', 'Add luggage', 70, PointType.FLIGHT),
   new Offer('offer-9', 'Comfort class', 120, PointType.FLIGHT),
   new Offer('offer-10', 'Add meal', 25, PointType.FLIGHT),
-  
   new Offer('offer-11', 'Cabin with a view', 200, PointType.SHIP),
   new Offer('offer-12', 'All inclusive', 350, PointType.SHIP)
 ];
@@ -72,7 +67,7 @@ export const mockPoints = [
   new Point(
     'point-1',
     PointType.TAXI,
-    'dest-1', 
+    'dest-1',
     1100,
     '2019-07-10T22:55:56.845Z',
     '2019-07-11T11:22:13.375Z',
@@ -82,7 +77,7 @@ export const mockPoints = [
   new Point(
     'point-2',
     PointType.FLIGHT,
-    'dest-2', 
+    'dest-2',
     2500,
     '2019-07-12T08:30:00.000Z',
     '2019-07-12T13:45:00.000Z',
@@ -92,7 +87,7 @@ export const mockPoints = [
   new Point(
     'point-3',
     PointType.TRAIN,
-    'dest-3', 
+    'dest-3',
     850,
     '2019-07-13T14:20:00.000Z',
     '2019-07-13T18:10:00.000Z',
@@ -102,7 +97,7 @@ export const mockPoints = [
   new Point(
     'point-4',
     PointType.BUS,
-    'dest-4', 
+    'dest-4',
     350,
     '2019-07-14T09:15:00.000Z',
     '2019-07-14T12:30:00.000Z',
@@ -123,7 +118,7 @@ export const mockPoints = [
 
 export const getDestinations = () => mockDestinations;
 export const getOffers = () => mockOffers;
-export const getOffersByType = (type) => mockOffers.filter(offer => offer.type === type);
+export const getOffersByType = (type) => mockOffers.filter((offer) => offer.type === type);
 export const getPoints = () => mockPoints;
-export const getDestinationById = (id) => mockDestinations.find(dest => dest.id === id);
-export const getOffersByIds = (offerIds) => mockOffers.filter(offer => offerIds.includes(offer.id));
+export const getDestinationById = (id) => mockDestinations.find((dest) => dest.id === id);
+export const getOffersByIds = (offerIds) => mockOffers.filter((offer) => offerIds.includes(offer.id));
