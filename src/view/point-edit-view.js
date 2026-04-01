@@ -1,6 +1,6 @@
-import AbstractView from '../framework/view/abstract-view';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 
-export default class PointEditView extends AbstractView{
+export default class PointEditView extends AbstractStatefulView{
   constructor(point = null, destinations, offersByType, allOffers, isNew = false) {
     super();
     this.point = point;
@@ -8,6 +8,10 @@ export default class PointEditView extends AbstractView{
     this.offersByType = offersByType;
     this.allOffers = allOffers;
     this.isNew = isNew;
+
+    this._onFormSubmit = null;
+    this._onCancelClick = null;
+    this._onCloseClick = null;
   }
 
   get template() {
@@ -204,8 +208,11 @@ export default class PointEditView extends AbstractView{
 
             <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
             <button class="event__reset-btn" type="reset">Cancel</button>
-          </header>
 
+            <button class="event__rollup-btn" type="button">
+              <span class="visually-hidden">Open event</span>
+            </button> 
+          </header>
           <section class="event__details">
             <section class="event__section  event__section--offers">
               <h3 class="event__section-title  event__section-title--offers">Offers</h3>
@@ -217,5 +224,43 @@ export default class PointEditView extends AbstractView{
         </form>
       </li>
     `;
+  }
+
+  setFormSubmitHandler(callback) {
+    this._onFormSubmit = callback;
+    this.element.querySelector('form')
+      .addEventListener('submit', this._onFormSubmit);
+  }
+
+  setCancelClickHandler(callback) {
+    this._onCancelClick = callback;
+    this.element.querySelector('.event__reset-btn')
+      .addEventListener('click', this._onCancelClick);
+  }
+
+  setCloseClickHandler(callback) {
+    this._onCloseClick = callback;
+    const closeButton = this.element.querySelector('.event__rollup-btn');
+    if (closeButton) {
+      closeButton.addEventListener('click', this._onCloseClick);
+    }
+  }
+
+  getFormData() {
+    const form = this.element.querySelector('form');
+    const formData = new FormData(form);
+    return {
+      type: this.point?.type || 'flight',
+      destination: formData.get('event-destination'),
+      startTime: formData.get('event-start-time'),
+      endTime: formData.get('event-end-time'),
+      price: parseInt(formData.get('event-price'), 10),
+      offers: Array.from(form.querySelectorAll('.event__offer-checkbox:checked'))
+        .map((checkbox) => checkbox.id.replace('event-offer-', ''))
+    };
+  }
+
+  showError() {
+    this.shake();
   }
 }

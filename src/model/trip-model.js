@@ -42,6 +42,15 @@ export default class TripModel {
     return this.points.find((point) => point.id === id);
   }
 
+  toggleFavorite(pointId) {
+    const point = this.getPointById(pointId);
+    if (point) {
+      point.isFavorite = !point.isFavorite;
+      return point;
+    }
+    return null;
+  }
+
   getFullPointData(pointId) {
     const point = this.getPointById(pointId);
     if (!point) {
