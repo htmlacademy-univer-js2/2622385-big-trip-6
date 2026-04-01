@@ -1,12 +1,16 @@
-export default class PointView {
+import AbstractView from '../framework/view/abstract-view';
+
+export default class PointView extends AbstractView{
   constructor(point, destination, offers) {
+    super();
     this.point = point;
     this.destination = destination;
     this.offers = offers;
-    this.element = null;
+    this._onEditClick = null;
+    this._onFavoriteClick = null;
   }
 
-  getTemplate() {
+  get template() {
     const { point, destination, offers } = this;
     const dateFrom = new Date(point.dateFrom);
     const dateTo = new Date(point.dateTo);
@@ -60,18 +64,5 @@ export default class PointView {
         </div>
       </li>
     `;
-  }
-
-  getElement() {
-    if (!this.element) {
-      const template = document.createElement('template');
-      template.innerHTML = this.getTemplate().trim();
-      this.element = template.content.firstElementChild;
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

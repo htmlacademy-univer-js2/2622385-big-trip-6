@@ -27,7 +27,7 @@ export default class TripPresenter {
     this.renderFilters();
 
     const sortingView = new SortingView();
-    this.container.appendChild(sortingView.getElement());
+    this.container.appendChild(sortingView.element);
 
     const points = this.model.getPoints();
     const destinations = this.model.getDestinations();
@@ -50,14 +50,14 @@ export default class TripPresenter {
       (type) => this.model.getOffersByType(type),
       offers
     );
-    eventsList.appendChild(editView.getElement());
+    eventsList.appendChild(editView.element);
 
     const otherPoints = points.filter((point) => point.id !== randomPoint.id);
     otherPoints.forEach((point) => {
       const destination = this.model.getDestinationById(point.destinationId);
       const pointOffers = this.model.getOffersByIds(point.offerIds);
       const pointView = new PointView(point, destination, pointOffers);
-      eventsList.appendChild(pointView.getElement());
+      eventsList.appendChild(pointView.element);
     });
   }
 
@@ -65,7 +65,7 @@ export default class TripPresenter {
     if (this.filtersContainer) {
       const filtersView = new FiltersView();
       this.filtersContainer.innerHTML = '';
-      this.filtersContainer.appendChild(filtersView.getElement());
+      this.filtersContainer.appendChild(filtersView.element);
     }
   }
 }

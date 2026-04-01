@@ -1,14 +1,16 @@
-export default class PointEditView {
+import AbstractView from '../framework/view/abstract-view';
+
+export default class PointEditView extends AbstractView{
   constructor(point = null, destinations, offersByType, allOffers, isNew = false) {
+    super();
     this.point = point;
     this.destinations = destinations;
     this.offersByType = offersByType;
     this.allOffers = allOffers;
     this.isNew = isNew;
-    this.element = null;
   }
 
-  getTemplate() {
+  get template() {
     if (this.isNew || !this.point) {
       return this.getEmptyTemplate();
     }
@@ -215,18 +217,5 @@ export default class PointEditView {
         </form>
       </li>
     `;
-  }
-
-  getElement() {
-    if (!this.element) {
-      const template = document.createElement('template');
-      template.innerHTML = this.getTemplate().trim();
-      this.element = template.content.firstElementChild;
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

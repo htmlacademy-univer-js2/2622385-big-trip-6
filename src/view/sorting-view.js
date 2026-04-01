@@ -1,3 +1,5 @@
+import AbstractView from '../framework/view/abstract-view';
+
 function sortingTemplate() {
   return `
       <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
@@ -29,25 +31,8 @@ function sortingTemplate() {
     `;
 }
 
-export default class SortingView {
-  constructor() {
-    this.element = null;
-  }
-
-  getTemplate() {
+export default class SortingView extends AbstractView {
+  get template() {
     return sortingTemplate();
-  }
-
-  getElement() {
-    if (!this.element) {
-      const template = document.createElement('template');
-      template.innerHTML = this.getTemplate().trim();
-      this.element = template.content.firstElementChild;
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

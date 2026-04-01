@@ -1,3 +1,5 @@
+import AbstractView from '../framework/view/abstract-view';
+
 function addNewPointTemplate() {
   return `
       <li class="trip-events__item">
@@ -165,25 +167,8 @@ function addNewPointTemplate() {
     `;
 }
 
-export default class AddNewPointView {
-  constructor() {
-    this.element = null;
-  }
-
-  getTemplate() {
+export default class AddNewPointView extends AbstractView {
+  get template() {
     return addNewPointTemplate;
-  }
-
-  getElement() {
-    if (!this.element) {
-      const template = document.createElement('template');
-      template.innerHTML = this.getTemplate().trim();
-      this.element = template.content.firstElementChild;
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }
