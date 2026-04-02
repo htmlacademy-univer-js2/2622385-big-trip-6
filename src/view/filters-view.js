@@ -1,3 +1,5 @@
+import AbstractView from '../framework/view/abstract-view';
+
 function filtersTemplate() {
   return `
       <form class="trip-filters" action="#" method="get">
@@ -26,25 +28,8 @@ function filtersTemplate() {
     `;
 }
 
-export default class FiltersView {
-  constructor() {
-    this.element = null;
-  }
-
-  getTemplate() {
+export default class FiltersView extends AbstractView{
+  get template() {
     return filtersTemplate();
-  }
-
-  getElement() {
-    if (!this.element) {
-      const template = document.createElement('template');
-      template.innerHTML = this.getTemplate().trim();
-      this.element = template.content.firstElementChild;
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

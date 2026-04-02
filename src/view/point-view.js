@@ -1,26 +1,33 @@
-export default class PointView {
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
+
+export default class PointView extends AbstractStatefulView {
   constructor(point, destination, offers) {
-    this.point = point;
-    this.destination = destination;
-    this.offers = offers;
-    this.element = null;
+    super();
+    this._destination = destination;
+    this._offers = offers;
+    this._setState({
+      point: point,
+      isFavorite: point.isFavorite
+    });
   }
 
-  getTemplate() {
-    const { point, destination, offers } = this;
-    
+  get template() {
+    return this._getTemplate();
+  }
+
+  _getTemplate() {
+    const { point } = this._state;
+    const { _destination: destination, _offers: offers } = this;
     const dateFrom = new Date(point.dateFrom);
     const dateTo = new Date(point.dateTo);
-    
     const month = dateFrom.toLocaleString('en', { month: 'short' }).toUpperCase();
     const day = dateFrom.getDate().toString().padStart(2, '0');
-    
     const startTime = dateFrom.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
     const endTime = dateTo.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
 
     const offersHtml = offers.length > 0 ? `
       <ul class="event__selected-offers">
-        ${offers.map(offer => `
+        ${offers.map((offer) => `
           <li class="event__offer">
             <span class="event__offer-title">${offer.title}</span>
             &plus;&euro;&nbsp;
@@ -30,7 +37,7 @@ export default class PointView {
       </ul>
     ` : '';
 
-    const favoriteClass = point.isFavorite ? 'event__favorite-btn--active' : '';
+    const favoriteClass = this._state.isFavorite ? 'event__favorite-btn--active' : '';
 
     return `
       <li class="trip-events__item">
@@ -65,16 +72,49 @@ export default class PointView {
     `;
   }
 
-  getElement() {
-    if (!this.element) {
-      const template = document.createElement('template');
-      template.innerHTML = this.getTemplate().trim();
-      this.element = template.content.firstElementChild;
-    }
-    return this.element;
+  updateData(point, destination, offers) {
+    this._destination = destination;
+    this._offers = offers;
+    this.updateElement({
+      point: point,
+      isFavorite: point.isFavorite
+    });
   }
 
-  removeElement() {
-    this.element = null;
+  _restoreHandlers() {
+    if (this._onEditClick) {
+      const editButton = this.element.querySelector('.event__rollup-btn');
+      if (editButton) {
+        editButton.removeEventListener('click', this._onEditClick);
+        editButton.addEventListener('click', this._onEditClick);
+      }
+    }
+    if (this._onFavoriteClick) {
+      const favoriteButton = this.element.querySelector('.event__favorite-btn');
+      if (favoriteButton) {
+        favoriteButton.removeEventListener('click', this._onFavoriteClick);
+        favoriteButton.addEventListener('click', this._onFavoriteClick);
+      }
+    }
+  }
+
+  setEditClickHandler(callback) {
+    this._onEditClick = callback;
+    const editButton = this.element.querySelector('.event__rollup-btn');
+    if (editButton) {
+      editButton.addEventListener('click', this._onEditClick);
+    }
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._onFavoriteClick = callback;
+    const favoriteButton = this.element.querySelector('.event__favorite-btn');
+    if (favoriteButton) {
+      favoriteButton.addEventListener('click', this._onFavoriteClick);
+    }
+  }
+
+  getPoint() {
+    return this._state.point;
   }
 }
