@@ -1,5 +1,13 @@
 import AbstractView from '../framework/view/abstract-view';
 
+export const SortType = {
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFER: 'offer'
+};
+
 function sortingTemplate() {
   return `
       <form class="trip-events__trip-sort  trip-sort" action="#" method="get">

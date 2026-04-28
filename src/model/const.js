@@ -41,7 +41,7 @@ export const FilterType = {
   PAST: 'past'
 };
 
-export const filterTitles = {
+export const FilterTitles = {
   [FilterType.EVERYTHING]: 'Everything',
   [FilterType.FUTURE]: 'Future',
   [FilterType.PRESENT]: 'Present',
