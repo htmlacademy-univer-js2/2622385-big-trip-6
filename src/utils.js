@@ -56,3 +56,44 @@ export const getFiltersInfo = (points) => {
   });
   return filtersInfo;
 };
+
+export function generateFilters(points) {
+  const now = new Date();
+
+  return [
+    {
+      type: FilterType.EVERYTHING,
+      name: 'Everything',
+      count: points.length,
+      disabled: points.length === 0,
+    },
+    {
+      type: FilterType.FUTURE,
+      name: 'Future',
+      count: points.filter((point) => new Date(point.dateFrom) > now).length,
+      disabled: !points.some((point) => new Date(point.dateFrom) > now),
+    },
+    {
+      type: FilterType.PRESENT,
+      name: 'Present',
+      count: points.filter((point) => {
+        const start = new Date(point.dateFrom);
+        const end = new Date(point.dateTo);
+
+        return start <= now && end >= now;
+      }).length,
+      disabled: !points.some((point) => {
+        const start = new Date(point.dateFrom);
+        const end = new Date(point.dateTo);
+
+        return start <= now && end >= now;
+      }),
+    },
+    {
+      type: FilterType.PAST,
+      name: 'Past',
+      count: points.filter((point) => new Date(point.dateTo) < now).length,
+      disabled: !points.some((point) => new Date(point.dateTo) < now),
+    },
+  ];
+}
