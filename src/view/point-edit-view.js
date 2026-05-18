@@ -130,6 +130,10 @@ export default class PointEditView extends AbstractStatefulView{
             <button class="event__reset-btn" type="reset">
               ${this.isNew ? 'Cancel' : 'Delete'}
             </button>
+            
+            <button class="event__rollup-btn" type="button">
+              <span class="visually-hidden">Close event</span>
+            </button>
           </header>
 
           <section class="event__details">
@@ -147,6 +151,10 @@ export default class PointEditView extends AbstractStatefulView{
   }
 
   getEmptyTemplate() {
+    const destinationsOptions = this.destinations.map((dest) =>
+      `<option value="${dest.name}"></option>`
+    ).join('');
+
     return `
       <li class="trip-events__item">
         <form class="event event--edit" action="#" method="post">
@@ -171,7 +179,7 @@ export default class PointEditView extends AbstractStatefulView{
                      list="destination-list-1"
                      placeholder="Enter destination">
               <datalist id="destination-list-1">
-                ${this.destinations.map((dest) => `<option value="${dest.name}"></option>`).join('')}
+                ${destinationsOptions}
               </datalist>
             </div>
 
@@ -210,7 +218,7 @@ export default class PointEditView extends AbstractStatefulView{
             <button class="event__reset-btn" type="reset">Cancel</button>
 
             <button class="event__rollup-btn" type="button">
-              <span class="visually-hidden">Open event</span>
+              <span class="visually-hidden">Close event</span>
             </button> 
           </header>
           <section class="event__details">
@@ -228,20 +236,27 @@ export default class PointEditView extends AbstractStatefulView{
 
   setFormSubmitHandler(callback) {
     this._onFormSubmit = callback;
-    this.element.querySelector('form')
-      .addEventListener('submit', this._onFormSubmit);
+    const form = this.element.querySelector('form');
+    if (form) {
+      form.removeEventListener('submit', this._onFormSubmit);
+      form.addEventListener('submit', this._onFormSubmit);
+    }
   }
 
   setCancelClickHandler(callback) {
     this._onCancelClick = callback;
-    this.element.querySelector('.event__reset-btn')
-      .addEventListener('click', this._onCancelClick);
+    const cancelButton = this.element.querySelector('.event__reset-btn');
+    if (cancelButton) {
+      cancelButton.removeEventListener('click', this._onCancelClick);
+      cancelButton.addEventListener('click', this._onCancelClick);
+    }
   }
 
   setCloseClickHandler(callback) {
     this._onCloseClick = callback;
     const closeButton = this.element.querySelector('.event__rollup-btn');
     if (closeButton) {
+      closeButton.removeEventListener('click', this._onCloseClick);
       closeButton.addEventListener('click', this._onCloseClick);
     }
   }
@@ -249,18 +264,36 @@ export default class PointEditView extends AbstractStatefulView{
   getFormData() {
     const form = this.element.querySelector('form');
     const formData = new FormData(form);
+    const destinationName = formData.get('event-destination');
+    const destination = this.destinations.find((d) => d.name === destinationName);
+    const parseDateTime = (dateTimeStr) => {
+      if (!dateTimeStr) {
+        return null;
+      }
+      const [datePart, timePart] = dateTimeStr.split(' ');
+      const [day, month, year] = datePart.split('/');
+      const [hours, minutes] = timePart.split(':');
+      const fullYear = 2000 + parseInt(year, 10);
+      return new Date(fullYear, parseInt(month, 10) - 1, parseInt(day, 10), parseInt(hours, 10), parseInt(minutes, 10)).toISOString();
+    };
     return {
       type: this.point?.type || 'flight',
-      destination: formData.get('event-destination'),
-      startTime: formData.get('event-start-time'),
-      endTime: formData.get('event-end-time'),
-      price: parseInt(formData.get('event-price'), 10),
-      offers: Array.from(form.querySelectorAll('.event__offer-checkbox:checked'))
+      destinationId: destination ? destination.id : (this.point?.destinationId || ''),
+      basePrice: parseInt(formData.get('event-price'), 10),
+      dateFrom: parseDateTime(formData.get('event-start-time')),
+      dateTo: parseDateTime(formData.get('event-end-time')),
+      offerIds: Array.from(form.querySelectorAll('.event__offer-checkbox:checked'))
         .map((checkbox) => checkbox.id.replace('event-offer-', ''))
     };
   }
 
   showError() {
     this.shake();
+  }
+
+  _restoreHandlers() {
+    this.setFormSubmitHandler(this._onFormSubmit);
+    this.setCancelClickHandler(this._onCancelClick);
+    this.setCloseClickHandler(this._onCloseClick);
   }
 }

@@ -3,6 +3,8 @@ import SortingView from '../view/sorting-view.js';
 import PointView from '../view/point-view.js';
 import PointEditView from '../view/point-edit-view.js';
 import TripModel from '../model/trip-model.js';
+import EmptyPointsView from '../view/empty-points-view.js';
+import { generateFilters } from '../utils.js';
 
 export default class TripPresenter {
   constructor() {
@@ -35,7 +37,8 @@ export default class TripPresenter {
     const offers = this.model.getOffers();
 
     if (points.length === 0) {
-      this.container.innerHTML += '<h2 class="trip-events__title">No events</h2>';
+      const emptyPointsView = new EmptyPointsView();
+      this.container.appendChild(emptyPointsView.element);
       return;
     }
 
@@ -48,7 +51,9 @@ export default class TripPresenter {
 
   renderFilters() {
     if (this.filtersContainer) {
-      const filtersView = new FiltersView();
+      const points = this.model.getPoints();
+      const filters = generateFilters(points);
+      const filtersView = new FiltersView(filters);
       this.filtersContainer.innerHTML = '';
       this.filtersContainer.appendChild(filtersView.element);
     }
