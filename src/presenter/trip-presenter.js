@@ -11,7 +11,6 @@ export default class TripPresenter {
     this.filtersContainer = null;
     this.model = new TripModel();
     this.eventsList = null;
-    this.pointViews = new Map();
     this.pointPresenters = new Map();
   }
 
@@ -83,16 +82,31 @@ export default class TripPresenter {
       updatedPoint
     );
 
-    const pointPresenter =
+    const oldPresenter =
       this.pointPresenters.get(
         updatedPoint.id
       );
 
-    if (pointPresenter) {
-      pointPresenter.destroy();
-
-      pointPresenter.init(updatedPoint);
+    if (oldPresenter) {
+      oldPresenter.destroy();
     }
+
+    const newPresenter =
+      new PointPresenter({
+        container: this.eventsList,
+        model: this.model,
+        onDataChange:
+          this.handlePointChange,
+        onModeChange:
+          this.handleModeChange,
+      });
+
+    newPresenter.init(updatedPoint);
+
+    this.pointPresenters.set(
+      updatedPoint.id,
+      newPresenter
+    );
   };
 
   handleModeChange = () => {

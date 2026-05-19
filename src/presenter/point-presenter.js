@@ -168,7 +168,5 @@ export default class PointPresenter {
     };
 
     this.#onDataChange(updatedPoint);
-
-    this.#replaceFormToPoint();
   };
 }
