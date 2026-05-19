@@ -261,6 +261,12 @@ export default class PointEditView extends AbstractStatefulView{
     }
   }
 
+  setFavoriteClickHandler(callback) {
+    this.element
+      .querySelector('.event__favorite-btn')
+      .addEventListener('click', callback);
+  }
+
   getFormData() {
     const form = this.element.querySelector('form');
     const formData = new FormData(form);
