@@ -236,29 +236,26 @@ export default class PointEditView extends AbstractStatefulView{
 
   setFormSubmitHandler(callback) {
     this._onFormSubmit = callback;
-    const form = this.element.querySelector('form');
-    if (form) {
-      form.removeEventListener('submit', this._onFormSubmit);
-      form.addEventListener('submit', this._onFormSubmit);
-    }
+
+    this.element
+      .querySelector('form')
+      .addEventListener('submit', callback);
   }
 
   setCancelClickHandler(callback) {
     this._onCancelClick = callback;
-    const cancelButton = this.element.querySelector('.event__reset-btn');
-    if (cancelButton) {
-      cancelButton.removeEventListener('click', this._onCancelClick);
-      cancelButton.addEventListener('click', this._onCancelClick);
-    }
+
+    this.element
+      .querySelector('.event__reset-btn')
+      .addEventListener('click', callback);
   }
 
   setCloseClickHandler(callback) {
     this._onCloseClick = callback;
-    const closeButton = this.element.querySelector('.event__rollup-btn');
-    if (closeButton) {
-      closeButton.removeEventListener('click', this._onCloseClick);
-      closeButton.addEventListener('click', this._onCloseClick);
-    }
+
+    this.element
+      .querySelector('.event__rollup-btn')
+      .addEventListener('click', callback);
   }
 
   getFormData() {
