@@ -137,7 +137,7 @@ export default class PointPresenter {
   #handleCancelClick = (evt) => {
     evt.preventDefault();
 
-    this.#replaceFormToPoint();
+    this.destroy();
   };
 
   #handleEscKeyDown = (evt) => {
