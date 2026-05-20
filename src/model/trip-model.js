@@ -68,10 +68,12 @@ export default class TripModel {
   }
 
   updatePoint(updateId, updatedPoint) {
-    this.points = this.points.map((point) =>
-      point.id === updateId
-        ? updatedPoint
-        : point
-    );
+    const index = this.points.findIndex((p) => p.id === updateId);
+
+    if (index === -1) {
+      return;
+    }
+
+    this.points[index] = updatedPoint;
   }
 }

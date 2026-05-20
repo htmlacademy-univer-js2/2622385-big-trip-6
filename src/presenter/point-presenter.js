@@ -87,9 +87,8 @@ export default class PointPresenter {
   }
 
   destroy() {
-    this.#pointComponent.element.remove();
-
-    this.#pointEditComponent.element.remove();
+    this.#pointComponent?.element?.remove();
+    this.#pointEditComponent?.element?.remove();
   }
 
   resetView() {
