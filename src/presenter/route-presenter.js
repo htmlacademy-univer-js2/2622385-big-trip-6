@@ -4,17 +4,24 @@ import EmptyPointsView from '../view/empty-points-view.js';
 import { render, RenderPosition, remove } from '../framework/render.js';
 import PointPresenter from './point-presenter.js';
 import { SortType } from '../view/sorting-view.js';
+import { getFilteredPoints, UserAction } from '../utils.js';
+import { FilterType } from '../model/const.js';
+import AddPointPresenter from './add-point-presenter.js';
 
 export class RoutePresenter {
   #model;
+  #filterModel;
 
   #currentSortType = SortType.DAY;
   #pointPresenters = new Map();
+  #addNewPointPresenter = null;
   #pointListComponent = new PointsView();
   #sortingView = null;
+  #emptyComponent = null;
 
-  constructor({model}) {
+  constructor({model, filterModel}) {
     this.#model = model;
+    this.#filterModel = filterModel;
   }
 
   init() {
@@ -25,13 +32,14 @@ export class RoutePresenter {
       return;
     }
 
+    this.#filterModel.addObserver(this.#handleModelChange);
     this.#renderSorting();
     this.#renderPoints();
   }
 
   #renderEmptyPoints() {
-    const empty = new EmptyPointsView();
-    render(empty, this.#pointListComponent.element);
+    this.#emptyComponent = new EmptyPointsView();
+    render(this.#emptyComponent, this.#pointListComponent.element);
   }
 
   #renderSorting() {
@@ -60,33 +68,66 @@ export class RoutePresenter {
     this.#pointPresenters.forEach((presenter) =>
       presenter.destroy()
     );
-
     this.#pointPresenters = new Map();
+    remove(this.#emptyComponent);
+    this.#emptyComponent = null;
   }
 
-  #getSortedPoints() {
-    const points = [...this.#model.getPoints()];
+  #getSortedPoints(points) {
+    const sorted = [...points];
 
     switch (this.#currentSortType) {
       case SortType.DAY:
-        return points.sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
+        return sorted.sort((a, b) => new Date(a?.dateFrom || 0) - new Date(b?.dateFrom || 0));
 
       case SortType.TIME:
-        return points.sort((a, b) => {
-          const durationA = new Date(a.dateTo) - new Date(a.dateFrom);
-          const durationB = new Date(b.dateTo) - new Date(b.dateFrom);
-          return durationB - durationA;
-        });
+        return sorted.sort((a, b) =>
+          ((new Date(b?.dateTo || 0) - new Date(b?.dateFrom || 0))) -
+          ((new Date(a?.dateTo || 0) - new Date(a?.dateFrom || 0)))
+        );
 
       case SortType.PRICE:
-        return points.sort((a, b) => b.basePrice - a.basePrice);
+        return sorted.sort((a, b) => b.basePrice - a.basePrice);
+
       default:
-        return points.sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
+        return sorted;
     }
   }
 
+  createPoint() {
+    if (this.#addNewPointPresenter !== null) {
+      return;
+    }
+
+    this.#currentSortType = SortType.DAY;
+    this.#handleModeChange();
+    this.#filterModel.setActiveFilter(FilterType.EVERYTHING);
+    remove(this.#emptyComponent);
+    this.#emptyComponent = null;
+
+    this.#addNewPointPresenter = new AddPointPresenter({
+      container: this.#pointListComponent.element,
+      model: this.#model,
+      onDataChange: this.#handlePointChange,
+      onClose: this.#destroyNewPoint
+    });
+
+    this.#addNewPointPresenter.init();
+  }
+
+  #destroyNewPoint = () => {
+    this.#addNewPointPresenter?.destroy();
+    this.#addNewPointPresenter = null;
+  };
+
   #renderPoints() {
-    const points = this.#getSortedPoints();
+    const filteredPoints = this.#getFilteredPoints();
+    const points = this.#getSortedPoints(filteredPoints);
+
+    if (points.length === 0) {
+      this.#renderEmptyPoints();
+      return;
+    }
 
     for (const event of points) {
       const presenter = new PointPresenter({
@@ -100,12 +141,39 @@ export class RoutePresenter {
     }
   }
 
-  #handlePointChange = (updatedPoint) => {
-    this.#model.updatePoint(updatedPoint.id, updatedPoint);
+  #handlePointChange = (actionType, updateType, data) => {
+    switch (actionType) {
+      case UserAction.UPDATE_POINT:
+        this.#model.updatePoint(data.id, data);
+        this.#rerenderPoint(data.id);
+        break;
 
-    const presenter = this.#pointPresenters.get(updatedPoint.id);
-    presenter?.init(this.#pointListComponent, updatedPoint);
+      case UserAction.DELETE_POINT:
+        this.#model.deletePoint(data.id);
+        this.#pointPresenters.get(data.id)?.destroy();
+        this.#pointPresenters.delete(data.id);
+
+        if (this.#model.getPoints().length === 0) {
+          this.#renderEmptyPoints();
+        }
+        break;
+
+      case UserAction.ADD_POINT:
+        this.#model.createPoint(data);
+        this.#clearPointList();
+        this.#renderPoints();
+        this.#addNewPointPresenter?.destroy();
+        this.#addNewPointPresenter = null;
+        break;
+    }
   };
+
+  #rerenderPoint(id) {
+    const presenter = this.#pointPresenters.get(id);
+    const point = this.#model.getPointById(id);
+
+    presenter?.init(this.#pointListComponent, point);
+  }
 
   #handleModeChange = (currentPresenter) => {
     this.#pointPresenters.forEach((presenter) => {
@@ -114,4 +182,47 @@ export class RoutePresenter {
       }
     });
   };
+
+  #getFilteredPoints() {
+    const points = this.#model.getPoints();
+    const filterType = this.#filterModel.getActiveFilter();
+
+    return getFilteredPoints(points, filterType);
+  }
+
+  #handleModelChange = () => {
+    this.#currentSortType = SortType.DAY;
+    this.#clearPointList();
+
+    remove(this.#sortingView);
+
+    this.#renderSorting();
+    this.#renderPoints();
+  };
+
+  startAddPoint(addPointPresenter) {
+    this.#addNewPointPresenter = addPointPresenter;
+  }
+
+  resetSort() {
+    this.#currentSortType = SortType.DAY;
+
+    remove(this.#sortingView);
+    this.#renderSorting();
+    this.#renderPoints();
+  }
+
+  destroyAllOpenForms() {
+    this.#pointPresenters.forEach((presenter) => {
+      presenter.resetView();
+    });
+  }
+
+  getContainer() {
+    return this.#pointListComponent.element;
+  }
+
+  handleModelAction(actionType, data) {
+    this.#handlePointChange(actionType, null, data);
+  }
 }

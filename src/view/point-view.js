@@ -18,8 +18,15 @@ export default class PointView extends AbstractStatefulView {
   _getTemplate() {
     const { point } = this._state;
     const { _destination: destination, _offers: offers } = this;
-    const dateFrom = new Date(point.dateFrom);
-    const dateTo = new Date(point.dateTo);
+    const dateFrom = point.dateFrom
+      ? new Date(point.dateFrom)
+      : null;
+    const dateTo = point.dateTo
+      ? new Date(point.dateTo)
+      : null;
+    if (!dateFrom || !dateTo) {
+      return '';
+    }
     const month = dateFrom.toLocaleString('en', { month: 'short' }).toUpperCase();
     const day = dateFrom.getDate().toString().padStart(2, '0');
     const startTime = dateFrom.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
@@ -46,7 +53,7 @@ export default class PointView extends AbstractStatefulView {
           <div class="event__type">
             <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
           </div>
-          <h3 class="event__title">${point.type} ${destination.name}</h3>
+          <h3 class="event__title">${point.type} ${destination?.name ?? ''}</h3>
           <div class="event__schedule">
             <p class="event__time">
               <time class="event__start-time" datetime="${dateFrom.toISOString()}">${startTime}</time>
@@ -82,17 +89,19 @@ export default class PointView extends AbstractStatefulView {
   }
 
   _restoreHandlers() {
+    if (!this.element) {
+      return;
+    }
+
     if (this._onEditClick) {
       const editButton = this.element.querySelector('.event__rollup-btn');
       if (editButton) {
-        editButton.removeEventListener('click', this._onEditClick);
         editButton.addEventListener('click', this._onEditClick);
       }
     }
     if (this._onFavoriteClick) {
       const favoriteButton = this.element.querySelector('.event__favorite-btn');
       if (favoriteButton) {
-        favoriteButton.removeEventListener('click', this._onFavoriteClick);
         favoriteButton.addEventListener('click', this._onFavoriteClick);
       }
     }

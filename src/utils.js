@@ -1,5 +1,31 @@
 import { FilterType } from './model/const';
 
+export const getFilteredPoints = (points, filterType) => {
+  const now = new Date();
+
+  switch (filterType) {
+    case FilterType.FUTURE:
+      return points.filter((point) =>
+        new Date(point.dateFrom) > now
+      );
+
+    case FilterType.PRESENT:
+      return points.filter((point) =>
+        new Date(point.dateFrom) <= now &&
+        new Date(point.dateTo) >= now
+      );
+
+    case FilterType.PAST:
+      return points.filter((point) =>
+        new Date(point.dateTo) < now
+      );
+
+    case FilterType.EVERYTHING:
+    default:
+      return points;
+  }
+};
+
 function getRandomArrayElement(items) {
   return items[Math.floor(Math.random() * items.length)];
 }
@@ -38,11 +64,6 @@ export const filters = {
   [FilterType.FUTURE]: filterFuture,
   [FilterType.PRESENT]: filterPresent,
   [FilterType.PAST]: filterPast
-};
-
-export const getFilteredPoints = (points, filterType) => {
-  const filterFn = filters[filterType];
-  return filterFn ? filterFn(points) : points;
 };
 
 export const getFiltersInfo = (points) => {
@@ -99,3 +120,9 @@ export function generateFilters(points) {
 }
 
 export const EVENT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
+
+export const UserAction = {
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_POINT',
+  DELETE_POINT: 'DELETE_POINT',
+};
