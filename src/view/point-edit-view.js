@@ -29,8 +29,7 @@ function createEditEventTemplate(state) {
     <div class="event__type-item">
       <input id="event-type-${eventType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventType}" ${eventType === type ? 'checked' : ''}>
       <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${eventType}</label>
-    </div>
-  `).join('');
+    </div>`).join('');
 
   const destinationOptionsTemplate = destinations.map(({name}) => `<option value="${name}"></option>`).join('');
 
