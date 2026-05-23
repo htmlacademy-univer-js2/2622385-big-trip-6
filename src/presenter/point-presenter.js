@@ -59,7 +59,8 @@ export default class PointPresenter {
           editingEvent: this.#point,
           destination: this.#model.getDestinations(),
           offersModel: this.#model,
-          onSubmit: (updatedEvent) => this.#handleFormSubmit(updatedEvent),
+          onSubmit: this.#handleFormSubmit,
+          onRollupClick: this.#handleRollupClick,
         }
       );
 
@@ -132,15 +133,6 @@ export default class PointPresenter {
     this.#replacePointToForm();
   };
 
-  #handleCloseClick = () => {
-    this.#replaceFormToPoint();
-  };
-
-  #handleCancelClick = (evt) => {
-    evt.preventDefault();
-    this.#replaceFormToPoint();
-  };
-
   #handleEscKeyDown = (evt) => {
     if (evt.key === 'Escape') {
       evt.preventDefault();
@@ -157,8 +149,12 @@ export default class PointPresenter {
     });
   };
 
-  #handleFormSubmit = (evt) => {
-    this.#onDataChange(evt);
+  #handleFormSubmit = (updatedPoint) => {
+    this.#onDataChange(updatedPoint);
+    this.#replaceFormToPoint();
+  };
+
+  #handleRollupClick = () => {
     this.#replaceFormToPoint();
   };
 }

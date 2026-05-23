@@ -143,16 +143,18 @@ function parseState(editingEvent, destinations, availableOffers) {
 }
 
 export default class PointEditView extends AbstractStatefulView {
+  #onRollupClick;
   #destinations;
   #offersModel;
   #onSubmit;
 
-  constructor({editingEvent = null, destinations = [], offersModel, onSubmit = () => {}} = {}) {
+  constructor({editingEvent = null, destinations = [], offersModel, onSubmit = () => {}, onRollupClick = () => {}} = {}) {
     super();
 
     this.#destinations = destinations;
     this.#offersModel = offersModel;
     this.#onSubmit = onSubmit;
+    this.#onRollupClick = onRollupClick;
 
     this._setState(parseState(
       editingEvent ?? {},
@@ -207,7 +209,7 @@ export default class PointEditView extends AbstractStatefulView {
   };
 
   #rollupClickHandler = () => {
-    this.#onSubmit(this.editedEvent);
+    this.#onRollupClick();
   };
 
   #typeChangeHandler = (evt) => {
