@@ -1,5 +1,6 @@
 import PointView from '../view/point-view.js';
 import PointEditView from '../view/point-edit-view.js';
+import { UserAction } from '../utils.js';
 
 import { render, remove, replace } from '../framework/render.js';
 
@@ -34,10 +35,7 @@ export default class PointPresenter {
     this.#point = point;
     this.#container = pointView;
 
-    const destination =
-      this.#model.getDestinationById(
-        point.destinationId
-      );
+    const destination = this.#model.getDestinationById(point.destinationId) ?? null;
 
     const pointOffers =
       this.#model.getOffersByIds(
@@ -61,6 +59,7 @@ export default class PointPresenter {
           offersModel: this.#model,
           onSubmit: this.#handleFormSubmit,
           onRollupClick: this.#handleRollupClick,
+          onDelete: this.#handleDeleteClick
         }
       );
 
@@ -142,19 +141,34 @@ export default class PointPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#onDataChange({
-      ...this.#point,
-      isFavorite:
-        !this.#point.isFavorite,
-    });
+    this.#onDataChange(
+      UserAction.UPDATE_POINT,
+      null,
+      {
+        ...this.#point,
+        isFavorite: !this.#point.isFavorite,
+      }
+    );
   };
 
   #handleFormSubmit = (updatedPoint) => {
-    this.#onDataChange(updatedPoint);
+    this.#onDataChange(
+      UserAction.UPDATE_POINT,
+      null,
+      updatedPoint
+    );
     this.#replaceFormToPoint();
   };
 
   #handleRollupClick = () => {
     this.#replaceFormToPoint();
+  };
+
+  #handleDeleteClick = () => {
+    this.#onDataChange(
+      UserAction.DELETE_POINT,
+      null,
+      this.#point
+    );
   };
 }

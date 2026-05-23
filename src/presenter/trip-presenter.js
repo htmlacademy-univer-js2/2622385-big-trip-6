@@ -1,12 +1,12 @@
 import FiltersView from '../view/filters-view.js';
 import { generateFilters } from '../utils.js';
 import InfoView from '../view/info-view.js';
-
 import { render, RenderPosition } from '../framework/render.js';
 import { RoutePresenter } from './route-presenter.js';
 import FilterPresenter from './filter-presenter.js';
 
 export default class TripPresenter {
+  #addPointButton = document.querySelector('.trip-main__event-add-btn');
   #routePresenter;
   #container = null;
   #filtersContainer = null;
@@ -27,6 +27,7 @@ export default class TripPresenter {
   init() {
     this.#container = document.querySelector('.trip-events');
     this.#filtersContainer = document.querySelector('.trip-controls__filters');
+    this.#addPointButton.addEventListener('click', this.#handleNewPointClick);
 
     if (this.#model.getPoints().length > 0) {
       this.#renderInfo();
@@ -42,7 +43,6 @@ export default class TripPresenter {
       filters: generateFilters(this.#model.getPoints()),
     });
 
-    this.#renderFilters();
     this.#routePresenter.init();
     this.#filterPresenter.init();
   }
@@ -70,4 +70,8 @@ export default class TripPresenter {
       render(filtersView, document.querySelector('.trip-controls__filters'));
     }
   }
+
+  #handleNewPointClick = () => {
+    this.#routePresenter.createPoint();
+  };
 }

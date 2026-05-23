@@ -35,9 +35,12 @@ function createFiltersTemplate(filters) {
 }
 
 export default class FiltersView extends AbstractView {
-  constructor(filters) {
+  #filterTypeChangeHandler;
+
+  constructor(filters, filterTypeChangeHandler = () => {}) {
     super();
     this._filters = filters;
+    this.#filterTypeChangeHandler = filterTypeChangeHandler;
   }
 
   get template() {

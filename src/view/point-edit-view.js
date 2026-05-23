@@ -148,14 +148,23 @@ export default class PointEditView extends AbstractStatefulView {
   #onSubmit;
   #startDatepicker = null;
   #endDatepicker = null;
+  #onDelete;
 
-  constructor({editingEvent = null, destinations = [], offersModel, onSubmit = () => {}, onRollupClick = () => {}} = {}) {
+  constructor({
+    editingEvent = null,
+    destinations = [],
+    offersModel,
+    onSubmit = () => {},
+    onRollupClick = () => {},
+    onDelete = () => {}
+  } = {}) {
     super();
 
     this.#destinations = destinations;
     this.#offersModel = offersModel;
     this.#onSubmit = onSubmit;
     this.#onRollupClick = onRollupClick;
+    this.#onDelete = onDelete;
 
     this._setState(parseState(
       editingEvent ?? {},
@@ -207,6 +216,9 @@ export default class PointEditView extends AbstractStatefulView {
     this.element.querySelector('.event__type-group').addEventListener('change', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
     this.#setDatepickers();
+    this.element
+      .querySelector('.event__reset-btn')
+      .addEventListener('click', this.#deleteHandler);
 
     const rollupButton = this.element.querySelector('.event__rollup-btn');
     rollupButton?.addEventListener('click', this.#rollupClickHandler);
@@ -271,6 +283,9 @@ export default class PointEditView extends AbstractStatefulView {
 
   #submitHandler = (evt) => {
     evt.preventDefault();
+    if (!this.editedEvent.dateFrom || !this.editedEvent.dateTo) {
+      return;
+    }
     this.#onSubmit(this.editedEvent);
   };
 
@@ -318,4 +333,9 @@ export default class PointEditView extends AbstractStatefulView {
     this.#destroyDatepickers();
     this.#setDatepickers();
   }
+
+  #deleteHandler = (evt) => {
+    evt.preventDefault();
+    this.#onDelete(this.editedEvent);
+  };
 }

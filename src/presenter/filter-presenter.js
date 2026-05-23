@@ -14,8 +14,7 @@ export default class FilterPresenter {
   }
 
   init() {
-    this.#view = new FiltersView(this.#filters);
-    this.#view.setFilterChangeHandler(this.#handleFilterChange);
+    this.#view = new FiltersView(this.#filters, this.#handleFilterChange);
 
     render(this.#view, this.#container);
   }

@@ -31,7 +31,7 @@ export default class TripModel {
     );
   }
 
-  getOffersByIds(offerIds) {
+  getOffersByIds(offerIds = []) {
     return this.#offers.filter(
       (offer) => offerIds.includes(offer.id)
     );
@@ -39,6 +39,10 @@ export default class TripModel {
 
   getPoints() {
     return this.#points;
+  }
+
+  getPointById(id) {
+    return this.#points.find((point) => point.id === id) ?? null;
   }
 
   updatePoint(updateId, updatedPoint) {
@@ -49,5 +53,24 @@ export default class TripModel {
     );
 
     return updatedPoint;
+  }
+
+  createPoint(point) {
+    const newPoint = {
+      ...point,
+      id: crypto.randomUUID(),
+    };
+    this.#points.push(newPoint);
+    return newPoint;
+  }
+
+  deletePoint(id) {
+    const index = this.#points.findIndex((p) => p.id === id);
+
+    if (index === -1) {
+      return;
+    }
+
+    this.#points.splice(index, 1);
   }
 }
