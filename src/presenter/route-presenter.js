@@ -62,6 +62,7 @@ export class RoutePresenter {
     );
 
     this.#pointPresenters = new Map();
+    this.#pointListComponent.element.innerHTML = '';
   }
 
   #getSortedPoints() {
@@ -101,10 +102,19 @@ export class RoutePresenter {
   }
 
   #handlePointChange = (updatedPoint) => {
-    this.#model.updatePoint(updatedPoint.id, updatedPoint);
+    const updatedModelPoint =
+      this.#model.updatePoint(
+        updatedPoint.id,
+        updatedPoint
+      );
 
-    const presenter = this.#pointPresenters.get(updatedPoint.id);
-    presenter?.init(this.#pointListComponent, updatedPoint);
+    const presenter =
+      this.#pointPresenters.get(updatedPoint.id);
+
+    presenter?.init(
+      this.#pointListComponent,
+      updatedModelPoint
+    );
   };
 
   #handleModeChange = (currentPresenter) => {

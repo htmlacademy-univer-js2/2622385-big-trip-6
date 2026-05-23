@@ -175,24 +175,30 @@ export default class PointEditView extends AbstractStatefulView {
     const destinationName = form.querySelector('.event__input--destination').value;
     const selectedDestination = this.#destinations.find(({name}) => name === destinationName) ?? null;
     const {
+      start,
+      end,
       availableOffers,
       destination: currentDestination,
       ...event
     } = this._state;
 
     return {
-      ...event,
+      id: event.id,
+      type: event.type,
       destinationId:
         selectedDestination?.id ??
         currentDestination?.id,
+      basePrice: Number(
+        form.querySelector('#event-price-1').value
+      ),
+      dateFrom: start,
+      dateTo: end,
+      isFavorite: event.isFavorite,
       offerIds: availableOffers
         .filter(({id}) =>
           form.querySelector(`#event-offer-${id}`)?.checked
         )
         .map(({id}) => id),
-      basePrice: Number(
-        form.querySelector('#event-price-1').value
-      ),
     };
   }
 
@@ -250,7 +256,6 @@ export default class PointEditView extends AbstractStatefulView {
 
     this._setState({
       start: selectedDate,
-      date: dayjs(selectedDate).startOf('day').toDate(),
     });
   };
 
@@ -306,4 +311,11 @@ export default class PointEditView extends AbstractStatefulView {
       destinationId: selectedDestination.id,
     });
   };
+
+  updateElement(update) {
+    super.updateElement(update);
+
+    this.#destroyDatepickers();
+    this.#setDatepickers();
+  }
 }

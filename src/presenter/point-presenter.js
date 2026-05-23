@@ -32,7 +32,7 @@ export default class PointPresenter {
 
   init(pointView, point) {
     this.#point = point;
-    this.#container = pointView.element;
+    this.#container = pointView;
 
     const destination =
       this.#model.getDestinationById(
@@ -76,7 +76,7 @@ export default class PointPresenter {
       prevPointComponent === null ||
       prevEditPointComponent === null
     ) {
-      render(this.#pointComponent, this.#container);
+      render(this.#pointComponent, this.#container.element);
       return;
     }
 

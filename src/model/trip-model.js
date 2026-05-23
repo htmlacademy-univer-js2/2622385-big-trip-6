@@ -2,78 +2,52 @@ import {
   getDestinations,
   getOffers,
   getPoints,
-  getDestinationById,
-  getOffersByType,
-  getOffersByIds
 } from './mock-data.js';
 
 export default class TripModel {
+  #destinations = [];
+  #offers = [];
+  #points = [];
+
   constructor() {
-    this.destinations = getDestinations();
-    this.offers = getOffers();
-    this.points = getPoints();
+    this.#destinations = getDestinations();
+    this.#offers = getOffers();
+    this.#points = getPoints();
   }
 
   getDestinations() {
-    return this.destinations;
+    return this.#destinations;
   }
 
   getDestinationById(id) {
-    return getDestinationById(id);
-  }
-
-  getOffers() {
-    return this.offers;
+    return this.#destinations.find(
+      (destination) => destination.id === id
+    );
   }
 
   getOffersByType(type) {
-    return getOffersByType(type);
+    return this.#offers.filter(
+      (offer) => offer.type === type
+    );
   }
 
   getOffersByIds(offerIds) {
-    return getOffersByIds(offerIds);
+    return this.#offers.filter(
+      (offer) => offerIds.includes(offer.id)
+    );
   }
 
   getPoints() {
-    return this.points;
-  }
-
-  getPointById(id) {
-    return this.points.find((point) => point.id === id);
-  }
-
-  toggleFavorite(pointId) {
-    const point = this.getPointById(pointId);
-    if (point) {
-      point.isFavorite = !point.isFavorite;
-      return point;
-    }
-    return null;
-  }
-
-  getFullPointData(pointId) {
-    const point = this.getPointById(pointId);
-    if (!point) {
-      return null;
-    }
-
-    const destination = this.getDestinationById(point.destinationId);
-    const offers = this.getOffersByIds(point.offerIds);
-
-    return {
-      point,
-      destination,
-      offers
-    };
+    return this.#points;
   }
 
   updatePoint(updateId, updatedPoint) {
-    const index = this.points.findIndex((p) => p.id === updateId);
+    this.#points = this.#points.map((point) =>
+      point.id === updateId
+        ? updatedPoint
+        : point
+    );
 
-    if (index === -1) {
-      return;
-    }
-
-    this.points[index] = updatedPoint;
+    return updatedPoint;
   }
 }
