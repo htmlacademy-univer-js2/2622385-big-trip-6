@@ -27,8 +27,13 @@ function createEditEventTemplate(state) {
     destinations,
   } = state;
 
-  const startTime = dayjs(start).format('DD/MM/YY HH:mm');
-  const endTime = dayjs(end).format('DD/MM/YY HH:mm');
+  const startTime = start
+    ? dayjs(start).format('DD/MM/YY HH:mm')
+    : '';
+
+  const endTime = end
+    ? dayjs(end).format('DD/MM/YY HH:mm')
+    : '';
 
   const eventTypesTemplate = EVENT_TYPES.map((eventType) => `
     <div class="event__type-item">
@@ -51,9 +56,9 @@ function createEditEventTemplate(state) {
     </div>
   `).join('');
 
-  const destinationPhotosTemplate = destination?.pictures.map(({src, description}) => `
+  const destinationPhotosTemplate = (destination?.pictures ?? []).map(({src, description}) => `
     <img class="event__photo" src="${src}" alt="${description}">
-  `).join('') ?? '';
+  `).join('');
 
   return `
       <form class="event event--edit" action="#" method="post">
@@ -230,7 +235,11 @@ export default class PointEditView extends AbstractStatefulView {
     this.updateElement({
       type: evt.target.value,
       offers: [],
-      availableOffers: this.#offersModel?.getOffersByType(evt.target.value) ?? [],
+      availableOffers:
+        this.#offersModel?.getOffersByType(evt.target.value) ?? [],
+
+      destination: this._state.destination,
+      destinationId: this._state.destinationId,
     });
   };
 
