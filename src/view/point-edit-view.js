@@ -1,18 +1,8 @@
 import dayjs from 'dayjs';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import {EVENT_TYPES} from '../utils.js';
-
-function parseDateTime(value) {
-  const [datePart = '', timePart = ''] = value.split(' ');
-  const [day, month, year] = datePart.split('/').map(Number);
-  const [hours, minutes] = timePart.split(':').map(Number);
-
-  if ([day, month, year, hours, minutes].some(Number.isNaN)) {
-    return null;
-  }
-
-  return new Date(2000 + year, month - 1, day, hours, minutes);
-}
 
 function createEditEventTemplate(state) {
   const {
@@ -39,8 +29,7 @@ function createEditEventTemplate(state) {
     <div class="event__type-item">
       <input id="event-type-${eventType}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventType}" ${eventType === type ? 'checked' : ''}>
       <label class="event__type-label  event__type-label--${eventType}" for="event-type-${eventType}-1">${eventType}</label>
-    </div>
-  `).join('');
+    </div>`).join('');
 
   const destinationOptionsTemplate = destinations.map(({name}) => `<option value="${name}"></option>`).join('');
 
@@ -157,6 +146,8 @@ export default class PointEditView extends AbstractStatefulView {
   #destinations;
   #offersModel;
   #onSubmit;
+  #startDatepicker = null;
+  #endDatepicker = null;
 
   constructor({editingEvent = null, destinations = [], offersModel, onSubmit = () => {}, onRollupClick = () => {}} = {}) {
     super();
@@ -183,8 +174,6 @@ export default class PointEditView extends AbstractStatefulView {
     const form = this.element;
     const destinationName = form.querySelector('.event__input--destination').value;
     const selectedDestination = this.#destinations.find(({name}) => name === destinationName) ?? null;
-    const start = parseDateTime(form.querySelector('#event-start-time-1').value);
-    const end = parseDateTime(form.querySelector('#event-end-time-1').value);
     const {
       availableOffers,
       destination: currentDestination,
@@ -204,8 +193,6 @@ export default class PointEditView extends AbstractStatefulView {
       basePrice: Number(
         form.querySelector('#event-price-1').value
       ),
-      dateFrom: start ?? this._state.start,
-      dateTo: end ?? this._state.end,
     };
   }
 
@@ -213,10 +200,69 @@ export default class PointEditView extends AbstractStatefulView {
     this.element.addEventListener('submit', this.#submitHandler);
     this.element.querySelector('.event__type-group').addEventListener('change', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+    this.#setDatepickers();
 
     const rollupButton = this.element.querySelector('.event__rollup-btn');
     rollupButton?.addEventListener('click', this.#rollupClickHandler);
   }
+
+  removeElement() {
+    this.#destroyDatepickers();
+    super.removeElement();
+  }
+
+  #setDatepickers() {
+    const config = {
+      dateFormat: 'd/m/y H:i',
+      enableTime: true,
+      'time_24hr': true,
+    };
+    this.#startDatepicker = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        ...config,
+        defaultDate: this._state.start,
+        onChange: this.#startDateChangeHandler,
+      },
+    );
+
+    this.#endDatepicker = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        ...config,
+        defaultDate: this._state.end,
+        onChange: this.#endDateChangeHandler,
+      },
+    );
+  }
+
+  #destroyDatepickers() {
+    this.#startDatepicker?.destroy();
+    this.#endDatepicker?.destroy();
+    this.#startDatepicker = null;
+    this.#endDatepicker = null;
+  }
+
+  #startDateChangeHandler = ([selectedDate]) => {
+    if (!selectedDate) {
+      return;
+    }
+
+    this._setState({
+      start: selectedDate,
+      date: dayjs(selectedDate).startOf('day').toDate(),
+    });
+  };
+
+  #endDateChangeHandler = ([selectedDate]) => {
+    if (!selectedDate) {
+      return;
+    }
+
+    this._setState({
+      end: selectedDate,
+    });
+  };
 
   #submitHandler = (evt) => {
     evt.preventDefault();
