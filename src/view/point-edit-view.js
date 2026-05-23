@@ -53,7 +53,7 @@ function createEditEventTemplate(state) {
 
   const destinationPhotosTemplate = destination?.pictures.map(({src, description}) => `
     <img class="event__photo" src="${src}" alt="${description}">
-  `).join('');
+  `).join('') ?? '';
 
   return `
       <form class="event event--edit" action="#" method="post">
@@ -129,13 +129,18 @@ function createEditEventTemplate(state) {
 }
 
 function parseState(editingEvent, destinations, availableOffers) {
-  const currentDestination = destinations.find(({id}) => id === editingEvent.destination);
+  const currentDestination = destinations.find(
+    ({id}) => id === editingEvent.destinationId
+  );
 
   return {
     ...editingEvent,
-    date: editingEvent.date ? dayjs(editingEvent.date).toDate() : null,
-    start: editingEvent.start ? dayjs(editingEvent.start).toDate() : null,
-    end: editingEvent.end ? dayjs(editingEvent.end).toDate() : null,
+
+    price: editingEvent.basePrice,
+    start: editingEvent.dateFrom,
+    end: editingEvent.dateTo,
+    offers: editingEvent.offerIds ?? [],
+
     destinations,
     availableOffers,
     destination: currentDestination,
@@ -183,14 +188,19 @@ export default class PointEditView extends AbstractStatefulView {
 
     return {
       ...event,
-      destination: selectedDestination?.id ?? currentDestination?.id,
-      offers: availableOffers
-        .filter(({id}) => form.querySelector(`#event-offer-${id}`)?.checked)
+      destinationId:
+        selectedDestination?.id ??
+        currentDestination?.id,
+      offerIds: availableOffers
+        .filter(({id}) =>
+          form.querySelector(`#event-offer-${id}`)?.checked
+        )
         .map(({id}) => id),
-      price: Number(form.querySelector('#event-price-1').value),
-      start: start ?? this._state.start,
-      end: end ?? this._state.end,
-      date: start ? dayjs(start).startOf('day').toDate() : this._state.date,
+      basePrice: Number(
+        form.querySelector('#event-price-1').value
+      ),
+      dateFrom: start ?? this._state.start,
+      dateTo: end ?? this._state.end,
     };
   }
 
@@ -230,6 +240,7 @@ export default class PointEditView extends AbstractStatefulView {
     if (!selectedDestination) {
       this.updateElement({
         destination: null,
+        destinationId: null,
       });
 
       return;
@@ -237,6 +248,7 @@ export default class PointEditView extends AbstractStatefulView {
 
     this.updateElement({
       destination: selectedDestination,
+      destinationId: selectedDestination.id,
     });
   };
 }

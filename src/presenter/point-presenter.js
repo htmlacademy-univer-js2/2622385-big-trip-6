@@ -57,7 +57,7 @@ export default class PointPresenter {
       new PointEditView(
         {
           editingEvent: this.#point,
-          destination: this.#model.getDestinations(),
+          destinations: this.#model.getDestinations(),
           offersModel: this.#model,
           onSubmit: this.#handleFormSubmit,
           onRollupClick: this.#handleRollupClick,
