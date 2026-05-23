@@ -8,7 +8,7 @@ export const SortType = {
   OFFER: 'offer'
 };
 
-function createSortingTemplate() {
+function createSortingTemplate(currentSortType) {
   return `
     <form class="trip-events__trip-sort  trip-sort" action="#" method="get">
       <div class="trip-sort__item  trip-sort__item--day">
@@ -17,8 +17,8 @@ function createSortingTemplate() {
           class="trip-sort__input  visually-hidden" 
           type="radio" 
           name="trip-sort" 
-          value="${SortType.DAY}" 
-          checked
+          value="${SortType.DAY}"
+          ${currentSortType === SortType.DAY ? 'checked' : ''}
           data-sort-type="${SortType.DAY}"
         >
         <label class="trip-sort__btn" for="sort-day">Day</label>
@@ -43,7 +43,8 @@ function createSortingTemplate() {
           class="trip-sort__input  visually-hidden" 
           type="radio" 
           name="trip-sort" 
-          value="${SortType.TIME}" 
+          value="${SortType.TIME}"
+          ${currentSortType === SortType.TIME ? 'checked' : ''}
           data-sort-type="${SortType.TIME}"
         >
         <label class="trip-sort__btn" for="sort-time">Time</label>
@@ -55,7 +56,8 @@ function createSortingTemplate() {
           class="trip-sort__input  visually-hidden" 
           type="radio" 
           name="trip-sort" 
-          value="${SortType.PRICE}" 
+          value="${SortType.PRICE}"
+          ${currentSortType === SortType.PRICE ? 'checked' : ''}
           data-sort-type="${SortType.PRICE}"
         >
         <label class="trip-sort__btn" for="sort-price">Price</label>
@@ -81,12 +83,14 @@ export default class SortingView extends AbstractView {
   #currentSortType = SortType.DAY;
   #handleSortTypeChange = null;
 
-  constructor() {
+  constructor(currentSortType) {
     super();
+
+    this.#currentSortType = currentSortType;
   }
 
   get template() {
-    return createSortingTemplate();
+    return createSortingTemplate(this.#currentSortType);
   }
 
   setSortTypeChangeHandler(callback) {
@@ -95,10 +99,6 @@ export default class SortingView extends AbstractView {
   }
 
   #sortTypeChangeHandler = (evt) => {
-    if (evt.target.tagName !== 'INPUT') {
-      return;
-    }
-
     const sortType = evt.target.dataset.sortType;
 
     if (sortType === this.#currentSortType) {

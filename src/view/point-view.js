@@ -53,10 +53,10 @@ export default class PointView extends AbstractStatefulView {
               &mdash;
               <time class="event__end-time" datetime="${dateTo.toISOString()}">${endTime}</time>
             </p>
-            <p class="event__price">
-              €&nbsp;<span class="event__price-value">${point.basePrice}</span>
-            </p>
-          </div>
+          </div>  
+          <p class="event__price">
+            €&nbsp;<span class="event__price-value">${point.basePrice}</span>
+          </p>
           ${offersHtml}
           <button class="event__favorite-btn ${favoriteClass}" type="button">
             <span class="visually-hidden">Add to favorite</span>
