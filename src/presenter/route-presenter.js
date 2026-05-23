@@ -4,17 +4,20 @@ import EmptyPointsView from '../view/empty-points-view.js';
 import { render, RenderPosition, remove } from '../framework/render.js';
 import PointPresenter from './point-presenter.js';
 import { SortType } from '../view/sorting-view.js';
+import { getFilteredPoints } from '../utils.js';
 
 export class RoutePresenter {
   #model;
+  #filterModel;
 
   #currentSortType = SortType.DAY;
   #pointPresenters = new Map();
   #pointListComponent = new PointsView();
   #sortingView = null;
 
-  constructor({model}) {
+  constructor({model, filterModel}) {
     this.#model = model;
+    this.#filterModel = filterModel;
   }
 
   init() {
@@ -25,6 +28,7 @@ export class RoutePresenter {
       return;
     }
 
+    this.#filterModel.addObserver(this.#handleModelChange);
     this.#renderSorting();
     this.#renderPoints();
   }
@@ -65,29 +69,35 @@ export class RoutePresenter {
     this.#pointListComponent.element.innerHTML = '';
   }
 
-  #getSortedPoints() {
-    const points = [...this.#model.getPoints()];
+  #getSortedPoints(points) {
+    const sorted = [...points];
 
     switch (this.#currentSortType) {
       case SortType.DAY:
-        return points.sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
+        return sorted.sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
 
       case SortType.TIME:
-        return points.sort((a, b) => {
-          const durationA = new Date(a.dateTo) - new Date(a.dateFrom);
-          const durationB = new Date(b.dateTo) - new Date(b.dateFrom);
-          return durationB - durationA;
-        });
+        return sorted.sort((a, b) =>
+          (new Date(b.dateTo) - new Date(b.dateFrom)) -
+          (new Date(a.dateTo) - new Date(a.dateFrom))
+        );
 
       case SortType.PRICE:
-        return points.sort((a, b) => b.basePrice - a.basePrice);
+        return sorted.sort((a, b) => b.basePrice - a.basePrice);
+
       default:
-        return points.sort((a, b) => new Date(a.dateFrom) - new Date(b.dateFrom));
+        return sorted;
     }
   }
 
   #renderPoints() {
-    const points = this.#getSortedPoints();
+    const filteredPoints = this.#getFilteredPoints();
+    const points = this.#getSortedPoints(filteredPoints);
+
+    if (points.length === 0) {
+      this.#renderEmptyPoints();
+      return;
+    }
 
     for (const event of points) {
       const presenter = new PointPresenter({
@@ -123,5 +133,22 @@ export class RoutePresenter {
         presenter.resetView();
       }
     });
+  };
+
+  #getFilteredPoints() {
+    const points = this.#model.getPoints();
+    const filterType = this.#filterModel.getActiveFilter();
+
+    return getFilteredPoints(points, filterType);
+  }
+
+  #handleModelChange = () => {
+    this.#currentSortType = SortType.DAY;
+    this.#clearPointList();
+
+    remove(this.#sortingView);
+
+    this.#renderSorting();
+    this.#renderPoints();
   };
 }

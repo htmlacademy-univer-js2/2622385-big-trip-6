@@ -4,18 +4,23 @@ import InfoView from '../view/info-view.js';
 
 import { render, RenderPosition } from '../framework/render.js';
 import { RoutePresenter } from './route-presenter.js';
+import FilterPresenter from './filter-presenter.js';
 
 export default class TripPresenter {
   #routePresenter;
   #container = null;
   #filtersContainer = null;
   #model = null;
+  #filterModel = null;
+  #filterPresenter = null;
 
-  constructor(model) {
+  constructor(model, filterModel) {
+    this.#filterModel = filterModel;
     this.#model = model;
 
     this.#routePresenter = new RoutePresenter({
       model,
+      filterModel: this.#filterModel
     });
   }
 
@@ -31,8 +36,15 @@ export default class TripPresenter {
       return;
     }
 
+    this.#filterPresenter = new FilterPresenter({
+      container: this.#filtersContainer,
+      filterModel: this.#filterModel,
+      filters: generateFilters(this.#model.getPoints()),
+    });
+
     this.#renderFilters();
     this.#routePresenter.init();
+    this.#filterPresenter.init();
   }
 
   #renderInfo() {
