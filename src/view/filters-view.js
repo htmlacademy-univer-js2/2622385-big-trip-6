@@ -9,7 +9,7 @@ function createFilterItemTemplate(filter) {
         type="radio"
         name="trip-filter"
         value="${filter.type}"
-        ${filter.disabled ? 'disabled' : ''}
+        ${filter.isChecked ? 'checked' : ''}
       >
 
       <label
@@ -35,15 +35,22 @@ function createFiltersTemplate(filters) {
 }
 
 export default class FiltersView extends AbstractView {
-  #filterTypeChangeHandler;
+  #FilterTypeChangeHandler;
 
-  constructor(filters, filterTypeChangeHandler = () => {}) {
+  constructor(filters) {
     super();
     this._filters = filters;
-    this.#filterTypeChangeHandler = filterTypeChangeHandler;
   }
 
   get template() {
     return createFiltersTemplate(this._filters);
+  }
+
+  setFilterTypeChangeHandler(callback) {
+    this.element.addEventListener('change', (evt) => {
+      if (evt.target.matches('.trip-filters__filter-input')) {
+        callback(evt.target.value);
+      }
+    });
   }
 }

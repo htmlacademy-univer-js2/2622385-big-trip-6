@@ -2,24 +2,28 @@ import FiltersView from '../view/filters-view.js';
 import { render } from '../framework/render.js';
 
 export default class FilterPresenter {
-  #container;
-  #filterModel;
-  #filters;
-  #view = null;
+  #container = null;
+  #filtersComponent = null;
+  #filterModel = null;
+  #filters = [];
 
-  constructor({container, filterModel, filters}) {
+  constructor({ container, filterModel, filters }) {
     this.#container = container;
     this.#filterModel = filterModel;
     this.#filters = filters;
   }
 
   init() {
-    this.#view = new FiltersView(this.#filters, this.#handleFilterChange);
+    this.#filtersComponent = new FiltersView(this.#filters);
 
-    render(this.#view, this.#container);
+    this.#filtersComponent.setFilterTypeChangeHandler(
+      this.#handleFilterTypeChange
+    );
+
+    render(this.#filtersComponent, this.#container);
   }
 
-  #handleFilterChange = (filterType) => {
+  #handleFilterTypeChange = (filterType) => {
     this.#filterModel.setActiveFilter(filterType);
   };
 }
