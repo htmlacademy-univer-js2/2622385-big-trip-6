@@ -7,6 +7,7 @@ import { SortType } from '../view/sorting-view.js';
 import { getFilteredPoints, UserAction } from '../utils.js';
 import { FilterType } from '../model/const.js';
 import AddPointPresenter from './add-point-presenter.js';
+import LoadingView from '../view/loading-view.js';
 
 export class RoutePresenter {
   #model;
@@ -16,6 +17,7 @@ export class RoutePresenter {
   #pointPresenters = new Map();
   #addNewPointPresenter = null;
   #pointListComponent = new PointsView();
+  #loadingComponent = new LoadingView();
   #sortingView = null;
   #emptyComponent = null;
 
@@ -25,14 +27,29 @@ export class RoutePresenter {
   }
 
   init() {
-    render(this.#pointListComponent, document.querySelector('.trip-events'));
+    render(
+      this.#pointListComponent,
+      document.querySelector('.trip-events')
+    );
+
+    render(
+      this.#loadingComponent,
+      this.#pointListComponent.element
+    );
+  }
+
+  renderBoard() {
+    remove(this.#loadingComponent);
 
     if (this.#model.getPoints().length === 0) {
       this.#renderEmptyPoints();
       return;
     }
 
-    this.#filterModel.addObserver(this.#handleModelChange);
+    this.#filterModel.addObserver(
+      this.#handleModelChange
+    );
+
     this.#renderSorting();
     this.#renderPoints();
   }
@@ -141,10 +158,10 @@ export class RoutePresenter {
     }
   }
 
-  #handlePointChange = (actionType, updateType, data) => {
+  #handlePointChange = async (actionType, updateType, data) => {
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this.#model.updatePoint(data.id, data);
+        await this.#model.updatePoint(data);
         this.#rerenderPoint(data.id);
         break;
 

@@ -13,6 +13,16 @@ module.exports = {
 
     devtool: 'source-map',
 
+    devServer: {
+        host: 'localhost',
+        port: 8080,
+        open: true,
+
+        headers: {
+        'Access-Control-Allow-Origin': '*',
+        },
+    },
+
     module: {
         rules: [
         {

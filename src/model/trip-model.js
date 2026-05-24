@@ -1,18 +1,29 @@
-import {
-  getDestinations,
-  getOffers,
-  getPoints,
-} from './mock-data.js';
+import Observable from '../framework/observable.js';
 
-export default class TripModel {
+export default class TripModel extends Observable {
+  #api = null;
+
   #destinations = [];
   #offers = [];
   #points = [];
 
-  constructor() {
-    this.#destinations = getDestinations();
-    this.#offers = getOffers();
-    this.#points = getPoints();
+  constructor({api}) {
+    super();
+    this.#api = api;
+  }
+
+  async init() {
+    try {
+      this.#points = await this.#api.points;
+      this.#destinations = await this.#api.destinations;
+      this.#offers = await this.#api.offers;
+    } catch (err) {
+      this.#points = [];
+      this.#destinations = [];
+      this.#offers = [];
+    }
+
+    this._notify();
   }
 
   getDestinations() {
@@ -26,15 +37,15 @@ export default class TripModel {
   }
 
   getOffersByType(type) {
-    return this.#offers.filter(
+    return this.#offers.find(
       (offer) => offer.type === type
-    );
+    )?.offers ?? [];
   }
 
   getOffersByIds(offerIds = []) {
-    return this.#offers.filter(
-      (offer) => offerIds.includes(offer.id)
-    );
+    return this.#offers
+      .flatMap((offerGroup) => offerGroup.offers)
+      .filter((offer) => offerIds.includes(offer.id));
   }
 
   getPoints() {
@@ -45,12 +56,17 @@ export default class TripModel {
     return this.#points.find((point) => point.id === id) ?? null;
   }
 
-  updatePoint(updateId, updatedPoint) {
+  async updatePoint(update) {
+    const updatedPoint =
+      await this.#api.updatePoint(update);
+
     this.#points = this.#points.map((point) =>
-      point.id === updateId
+      point.id === updatedPoint.id
         ? updatedPoint
         : point
     );
+
+    this._notify();
 
     return updatedPoint;
   }

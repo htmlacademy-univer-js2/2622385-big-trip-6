@@ -1,4 +1,3 @@
-import FiltersView from '../view/filters-view.js';
 import { generateFilters } from '../utils.js';
 import InfoView from '../view/info-view.js';
 import { render, RenderPosition } from '../framework/render.js';
@@ -29,10 +28,6 @@ export default class TripPresenter {
     this.#filtersContainer = document.querySelector('.trip-controls__filters');
     this.#addPointButton.addEventListener('click', this.#handleNewPointClick);
 
-    if (this.#model.getPoints().length > 0) {
-      this.#renderInfo();
-    }
-
     if (!this.#container) {
       return;
     }
@@ -47,6 +42,14 @@ export default class TripPresenter {
     this.#filterPresenter.init();
   }
 
+  renderBoard() {
+    if (this.#model.getPoints().length > 0) {
+      this.#renderInfo();
+    }
+
+    this.#routePresenter.renderBoard();
+  }
+
   #renderInfo() {
     const infoView = new InfoView(
       'Amsterdam &mdash; Chamonix &mdash; Geneva',
@@ -59,16 +62,6 @@ export default class TripPresenter {
       document.querySelector('.trip-main'),
       RenderPosition.AFTERBEGIN,
     );
-  }
-
-  #renderFilters() {
-    if (this.#filtersContainer) {
-      const points = this.#model.getPoints();
-      const filters = generateFilters(points);
-      const filtersView = new FiltersView(filters);
-
-      render(filtersView, document.querySelector('.trip-controls__filters'));
-    }
   }
 
   #handleNewPointClick = () => {
