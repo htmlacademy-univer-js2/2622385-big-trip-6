@@ -1,5 +1,5 @@
 import PointEditView from '../view/point-edit-view.js';
-import { render, remove } from '../framework/render.js';
+import { render, remove, RenderPosition } from '../framework/render.js';
 import { UserAction } from '../utils.js';
 
 export default class AddPointPresenter {
@@ -39,7 +39,7 @@ export default class AddPointPresenter {
       onDelete: this.#handleClose,
     });
 
-    render(this.#editComponent, this.#container);
+    render(this.#editComponent, this.#container, RenderPosition.AFTERBEGIN);
   }
 
   destroy() {
