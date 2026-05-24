@@ -2,7 +2,6 @@ import ApiService from '../framework/api-service.js';
 import PointAdapter from '../adapter/point-adapter.js';
 
 export default class BigTripApi extends ApiService {
-
   get points() {
     return this._load({
       url: 'points',
@@ -43,5 +42,25 @@ export default class BigTripApi extends ApiService {
       await ApiService.parseResponse(response);
 
     return PointAdapter.adaptToClient(parsedResponse);
+  }
+
+  async addPoint(point) {
+    const response = await this._load({
+      url: 'points',
+      method: 'POST',
+      body: JSON.stringify(point),
+      headers: new Headers({
+        'Content-Type': 'application/json',
+      }),
+    });
+
+    return ApiService.parseResponse(response);
+  }
+
+  async deletePoint(point) {
+    await this._load({
+      url: `points/${point.id}`,
+      method: 'DELETE',
+    });
   }
 }

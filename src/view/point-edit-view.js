@@ -338,4 +338,26 @@ export default class PointEditView extends AbstractStatefulView {
     evt.preventDefault();
     this.#onDelete(this.editedEvent);
   };
+
+  setSaving() {
+    this.#setControlsDisabled(true);
+    this.element.querySelector('.event__save-btn').textContent = 'Saving...';
+  }
+
+  setDeleting() {
+    this.#setControlsDisabled(true);
+    this.element.querySelector('.event__reset-btn').textContent = 'Deleting...';
+  }
+
+  resetControls() {
+    this.#setControlsDisabled(false);
+    this.element.querySelector('.event__save-btn').textContent = 'Save';
+    this.element.querySelector('.event__reset-btn').textContent = this._state.id ? 'Delete' : 'Cancel';
+  }
+
+  #setControlsDisabled(isDisabled) {
+    this.element.querySelectorAll('input, button').forEach((element) => {
+      element.disabled = isDisabled;
+    });
+  }
 }
