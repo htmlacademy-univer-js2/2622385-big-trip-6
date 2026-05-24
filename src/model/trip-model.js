@@ -1,4 +1,5 @@
 import Observable from '../framework/observable.js';
+import PointAdapter from '../adapter/point-adapter.js';
 
 export default class TripModel extends Observable {
   #api = null;
@@ -71,22 +72,21 @@ export default class TripModel extends Observable {
     return updatedPoint;
   }
 
-  createPoint(point) {
-    const newPoint = {
-      ...point,
-      id: crypto.randomUUID(),
-    };
+  async createPoint(point) {
+    const response = await this.#api.addPoint(
+      PointAdapter.adaptToServer(point)
+    );
+    const newPoint = PointAdapter.adaptToClient(response);
     this.#points.push(newPoint);
+
     return newPoint;
   }
 
-  deletePoint(id) {
-    const index = this.#points.findIndex((p) => p.id === id);
+  async deletePoint(point) {
+    await this.#api.deletePoint(point);
 
-    if (index === -1) {
-      return;
-    }
-
-    this.#points.splice(index, 1);
+    this.#points = this.#points.filter(
+      (p) => p.id !== point.id
+    );
   }
 }

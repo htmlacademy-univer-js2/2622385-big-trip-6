@@ -8,6 +8,12 @@ import { getFilteredPoints, UserAction } from '../utils.js';
 import { FilterType } from '../model/const.js';
 import AddPointPresenter from './add-point-presenter.js';
 import LoadingView from '../view/loading-view.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 export class RoutePresenter {
   #model;
@@ -20,6 +26,10 @@ export class RoutePresenter {
   #loadingComponent = new LoadingView();
   #sortingView = null;
   #emptyComponent = null;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT,
+  });
 
   constructor({model, filterModel}) {
     this.#model = model;
@@ -159,29 +169,52 @@ export class RoutePresenter {
   }
 
   #handlePointChange = async (actionType, updateType, data) => {
-    switch (actionType) {
-      case UserAction.UPDATE_POINT:
-        await this.#model.updatePoint(data);
-        this.#rerenderPoint(data.id);
-        break;
+    const presenter = this.#pointPresenters.get(data.id);
+    this.#uiBlocker.block();
+    try {
+      switch (actionType) {
+        case UserAction.UPDATE_POINT:
+          presenter.setSaving();
+          try {
+            const updatedPoint = await this.#model.updatePoint(data);
+            this.#rerenderPoint(updatedPoint.id);
+          } catch(err) {
+            presenter.setAborting();
+          }
+          break;
 
-      case UserAction.DELETE_POINT:
-        this.#model.deletePoint(data.id);
-        this.#pointPresenters.get(data.id)?.destroy();
-        this.#pointPresenters.delete(data.id);
+        case UserAction.DELETE_POINT:
+          presenter.setDeleting();
+          try {
+            await this.#model.deletePoint(data);
 
-        if (this.#model.getPoints().length === 0) {
-          this.#renderEmptyPoints();
-        }
-        break;
+            this.#pointPresenters.get(data.id)?.destroy();
+            this.#pointPresenters.delete(data.id);
+          } catch(err) {
+            presenter.setAborting();
+          }
+          break;
 
-      case UserAction.ADD_POINT:
-        this.#model.createPoint(data);
-        this.#clearPointList();
-        this.#renderPoints();
-        this.#addNewPointPresenter?.destroy();
-        this.#addNewPointPresenter = null;
-        break;
+        case UserAction.ADD_POINT:
+          this.#addNewPointPresenter.setSaving();
+
+          try {
+            await this.#model.createPoint(data);
+
+            this.#addNewPointPresenter.destroy();
+            this.#addNewPointPresenter = null;
+
+            this.#clearPointList();
+            this.#renderPoints();
+
+          } catch(err) {
+            this.#addNewPointPresenter.setAborting();
+          }
+
+          break;
+      }
+    } finally {
+      this.#uiBlocker.unblock();
     }
   };
 

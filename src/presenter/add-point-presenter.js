@@ -59,4 +59,16 @@ export default class AddPointPresenter {
     this.destroy();
     this.#onClose();
   };
+
+  setSaving() {
+    this.#editComponent.setSaving();
+  }
+
+  setAborting() {
+    this.#editComponent.setAborting();
+  }
+
+  setDeleting() {
+    this.#editComponent.setDeleting();
+  }
 }

@@ -1,7 +1,6 @@
 import PointView from '../view/point-view.js';
 import PointEditView from '../view/point-edit-view.js';
 import { UserAction } from '../utils.js';
-
 import { render, remove, replace } from '../framework/render.js';
 
 const Mode = {
@@ -171,4 +170,17 @@ export default class PointPresenter {
       this.#point
     );
   };
+
+  setSaving() {
+    this.#pointEditComponent.setSaving();
+  }
+
+  setAborting() {
+    this.#pointEditComponent.resetControls();
+    this.#pointEditComponent.shake();
+  }
+
+  setDeleting() {
+    this.#pointEditComponent.setDeleting();
+  }
 }
