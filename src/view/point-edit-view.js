@@ -15,7 +15,18 @@ function createEditEventTemplate(state) {
     availableOffers,
     destination,
     destinations,
+    isDisabled,
+    isSaving,
+    isDeleting
   } = state;
+
+  let resetButtonText = 'Cancel';
+
+  if (id) {
+    resetButtonText = isDeleting
+      ? 'Deleting...'
+      : 'Delete';
+  }
 
   const startTime = start
     ? dayjs(start).format('DD/MM/YY HH:mm')
@@ -94,8 +105,20 @@ function createEditEventTemplate(state) {
             <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price ?? 0}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">${id ? 'Delete' : 'Cancel'}</button>
+          <button
+            class="event__save-btn btn btn--blue"
+            type="submit"
+            ${isDisabled ? 'disabled' : ''}
+          >
+            ${isSaving ? 'Saving...' : 'Save'}
+          </button>
+          <button
+            class="event__reset-btn"
+            type="button"
+            ${isDisabled ? 'disabled' : ''}
+          >
+            ${resetButtonText}
+          </button>
           ${id ? `<button class="event__rollup-btn" type="button">
             <span class="visually-hidden">Open event</span>
           </button>` : ''}
@@ -166,11 +189,12 @@ export default class PointEditView extends AbstractStatefulView {
     this.#onRollupClick = onRollupClick;
     this.#onDelete = onDelete;
 
-    this._setState(parseState(
-      editingEvent ?? {},
-      this.#destinations,
-      this.#offersModel?.getOffersByType(editingEvent?.type) ?? []
-    ));
+    this._setState({
+      ...parseState(editingEvent ?? {}, this.#destinations, this.#offersModel?.getOffersByType(editingEvent?.type) ?? []),
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,}
+    );
 
     this._restoreHandlers();
   }
@@ -340,13 +364,32 @@ export default class PointEditView extends AbstractStatefulView {
   };
 
   setSaving() {
-    this.#setControlsDisabled(true);
-    this.element.querySelector('.event__save-btn').textContent = 'Saving...';
+    this.updateElement({
+      ...this._state,
+      isDisabled: true,
+      isSaving: true,
+    });
   }
 
   setDeleting() {
-    this.#setControlsDisabled(true);
-    this.element.querySelector('.event__reset-btn').textContent = 'Deleting...';
+    this.updateElement({
+      ...this._state,
+      isDisabled: true,
+      isDeleting: true,
+    });
+  }
+
+  setAborting() {
+    const resetState = {
+      ...this._state,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    };
+
+    this.shake(() => {
+      this.updateElement(resetState);
+    });
   }
 
   resetControls() {

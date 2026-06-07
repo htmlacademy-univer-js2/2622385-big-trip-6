@@ -175,8 +175,7 @@ export default class PointPresenter {
   }
 
   setAborting() {
-    this.#pointEditComponent.resetControls();
-    this.#pointEditComponent.shake();
+    this.#pointEditComponent.setAborting();
   }
 
   setDeleting() {

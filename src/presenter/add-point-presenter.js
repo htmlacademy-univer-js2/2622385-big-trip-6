@@ -6,7 +6,7 @@ export default class AddPointPresenter {
   #container;
   #model;
 
-  #editComponent = null;
+  #pointEditComponent = null;
 
   #onDataChange = null;
   #onClose = null;
@@ -30,7 +30,7 @@ export default class AddPointPresenter {
       offerIds: [],
     };
 
-    this.#editComponent = new PointEditView({
+    this.#pointEditComponent = new PointEditView({
       editingEvent: emptyPoint,
       destinations: this.#model.getDestinations(),
       offersModel: this.#model,
@@ -39,20 +39,19 @@ export default class AddPointPresenter {
       onDelete: this.#handleClose,
     });
 
-    render(this.#editComponent, this.#container, RenderPosition.AFTERBEGIN);
+    render(this.#pointEditComponent, this.#container, RenderPosition.AFTERBEGIN);
   }
 
   destroy() {
-    if (!this.#editComponent) {
+    if (!this.#pointEditComponent) {
       return;
     }
-    remove(this.#editComponent);
-    this.#editComponent = null;
+    remove(this.#pointEditComponent);
+    this.#pointEditComponent = null;
   }
 
   #handleSubmit = (point) => {
     this.#onDataChange(UserAction.ADD_POINT, null, point);
-    this.destroy();
   };
 
   #handleClose = () => {
@@ -61,14 +60,14 @@ export default class AddPointPresenter {
   };
 
   setSaving() {
-    this.#editComponent.setSaving();
+    this.#pointEditComponent.setSaving();
   }
 
   setAborting() {
-    this.#editComponent.setAborting();
+    this.#pointEditComponent.setAborting();
   }
 
   setDeleting() {
-    this.#editComponent.setDeleting();
+    this.#pointEditComponent.setDeleting();
   }
 }
