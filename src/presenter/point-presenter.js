@@ -156,7 +156,6 @@ export default class PointPresenter {
       null,
       updatedPoint
     );
-    this.#replaceFormToPoint();
   };
 
   #handleRollupClick = () => {

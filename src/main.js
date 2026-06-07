@@ -3,8 +3,6 @@ import TripPresenter from './presenter/trip-presenter.js';
 import FilterModel from './model/filter-model.js';
 import BigTripApi from './api/big-trip-api.js';
 
-//module8-task3 потом доделаю, чтобы баллы за дз не терять
-
 if (localStorage.getItem('token') === null) {
   localStorage.setItem('token', crypto.randomUUID());
 }

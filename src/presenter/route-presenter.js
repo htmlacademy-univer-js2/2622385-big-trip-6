@@ -222,7 +222,8 @@ export class RoutePresenter {
     const presenter = this.#pointPresenters.get(id);
     const point = this.#model.getPointById(id);
 
-    presenter?.init(this.#pointListComponent, point);
+    presenter.resetView();
+    presenter.init(this.#pointListComponent, point);
   }
 
   #handleModeChange = (currentPresenter) => {
