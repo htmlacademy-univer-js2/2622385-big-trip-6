@@ -10,6 +10,7 @@ function createFilterItemTemplate(filter) {
         name="trip-filter"
         value="${filter.type}"
         ${filter.isChecked ? 'checked' : ''}
+        ${filter.disabled ? 'disabled' : ''}
       >
 
       <label

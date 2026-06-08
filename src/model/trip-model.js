@@ -66,9 +66,7 @@ export default class TripModel extends Observable {
         ? updatedPoint
         : point
     );
-
     this._notify();
-
     return updatedPoint;
   }
 
@@ -79,6 +77,7 @@ export default class TripModel extends Observable {
     const newPoint = PointAdapter.adaptToClient(response);
     this.#points.push(newPoint);
 
+    this._notify();
     return newPoint;
   }
 
@@ -88,5 +87,7 @@ export default class TripModel extends Observable {
     this.#points = this.#points.filter(
       (p) => p.id !== point.id
     );
+
+    this._notify();
   }
 }
