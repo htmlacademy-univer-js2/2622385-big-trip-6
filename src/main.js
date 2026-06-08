@@ -3,13 +3,11 @@ import TripPresenter from './presenter/trip-presenter.js';
 import FilterModel from './model/filter-model.js';
 import BigTripApi from './api/big-trip-api.js';
 
-//module8-task3 потом доделаю, чтобы баллы за дз не терять
-
 if (localStorage.getItem('token') === null) {
-  localStorage.setItem('token', crypto.randomUUID());
+  localStorage.setItem('token', Math.random().toString(36).substring(2));
 }
 
-const ENDPOINT = 'https://24.objects.htmlacademy.pro/big-trip';
+const ENDPOINT = 'https://23.objects.htmlacademy.pro/big-trip';
 const AUTHORIZATION = `Basic ${localStorage.getItem('token')}`;
 
 const api = new BigTripApi(

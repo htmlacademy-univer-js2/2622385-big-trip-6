@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
-import {EVENT_TYPES} from '../utils.js';
+import { EVENT_TYPES } from '../model/const';
 
 function createEditEventTemplate(state) {
   const {
@@ -15,7 +15,18 @@ function createEditEventTemplate(state) {
     availableOffers,
     destination,
     destinations,
+    isDisabled,
+    isSaving,
+    isDeleting
   } = state;
+
+  let resetButtonText = 'Cancel';
+
+  if (id) {
+    resetButtonText = isDeleting
+      ? 'Deleting...'
+      : 'Delete';
+  }
 
   const startTime = start
     ? dayjs(start).format('DD/MM/YY HH:mm')
@@ -49,7 +60,13 @@ function createEditEventTemplate(state) {
     <img class="event__photo" src="${src}" alt="${description}">
   `).join('');
 
+  const hasDescription = Boolean(destination?.description?.trim());
+  const hasPictures = Boolean(destination?.pictures?.length);
+  const hasDestinationDetails = hasDescription || hasPictures;
+
+  const hasOffers = availableOffers.length > 0;
   return `
+    <li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
         <header class="event__header">
           <div class="event__type-wrapper">
@@ -94,32 +111,61 @@ function createEditEventTemplate(state) {
             <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price ?? 0}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">${id ? 'Delete' : 'Cancel'}</button>
+          <button
+            class="event__save-btn btn btn--blue"
+            type="submit"
+            ${isDisabled ? 'disabled' : ''}
+          >
+            ${isSaving ? 'Saving...' : 'Save'}
+          </button>
+          <button
+            class="event__reset-btn"
+            type="button"
+            ${isDisabled ? 'disabled' : ''}
+          >
+            ${resetButtonText}
+          </button>
           ${id ? `<button class="event__rollup-btn" type="button">
             <span class="visually-hidden">Open event</span>
           </button>` : ''}
         </header>
         <section class="event__details">
-          <section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+          ${hasOffers ? `
+          <section class="event__section event__section--offers">
+            <h3 class="event__section-title event__section-title--offers">
+              Offers
+            </h3>
 
             <div class="event__available-offers">
               ${offersTemplate}
             </div>
           </section>
-          ${destination ? `<section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${destination.description}</p>
+          ` : ''}
+          ${hasDestinationDetails ? `
+            <section class="event__section event__section--destination">
+              <h3 class="event__section-title event__section-title--destination">
+                Destination
+              </h3>
 
-            <div class="event__photos-container">
-              <div class="event__photos-tape">
-                ${destinationPhotosTemplate}
-              </div>
-            </div>
-          </section>` : ''}
+              ${hasDescription ? `
+                <p class="event__destination-description">
+                  ${destination.description}
+                </p>
+              ` : ''}
+
+              ${hasPictures ? `
+                <div class="event__photos-container">
+                  <div class="event__photos-tape">
+                    ${destinationPhotosTemplate}
+                  </div>
+                </div>
+              ` : ''}
+            </section>
+          ` : ''}
         </section>
-      </form>`;
+      </form>
+    </li>
+      `;
 }
 
 function parseState(editingEvent, destinations, availableOffers) {
@@ -142,6 +188,7 @@ function parseState(editingEvent, destinations, availableOffers) {
 }
 
 export default class PointEditView extends AbstractStatefulView {
+  #initState;
   #onRollupClick;
   #destinations;
   #offersModel;
@@ -166,11 +213,13 @@ export default class PointEditView extends AbstractStatefulView {
     this.#onRollupClick = onRollupClick;
     this.#onDelete = onDelete;
 
-    this._setState(parseState(
-      editingEvent ?? {},
-      this.#destinations,
-      this.#offersModel?.getOffersByType(editingEvent?.type) ?? []
-    ));
+    this.#initState = {
+      ...parseState(editingEvent ?? {}, this.#destinations, this.#offersModel?.getOffersByType(editingEvent?.type) ?? []),
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    };
+    this._setState(this.#initState);
 
     this._restoreHandlers();
   }
@@ -215,6 +264,7 @@ export default class PointEditView extends AbstractStatefulView {
     this.element.addEventListener('submit', this.#submitHandler);
     this.element.querySelector('.event__type-group').addEventListener('change', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('input', this.#priceChangeHandler);
     this.#setDatepickers();
     this.element
       .querySelector('.event__reset-btn')
@@ -228,6 +278,12 @@ export default class PointEditView extends AbstractStatefulView {
     this.#destroyDatepickers();
     super.removeElement();
   }
+
+  #priceChangeHandler = (evt) => {
+    this._setState({
+      price: Number(evt.target.value)
+    });
+  };
 
   #setDatepickers() {
     const config = {
@@ -309,6 +365,12 @@ export default class PointEditView extends AbstractStatefulView {
     });
   };
 
+  #setControlsDisabled(isDisabled) {
+    this.element.querySelectorAll('input, button').forEach((element) => {
+      element.disabled = isDisabled;
+    });
+  }
+
   #destinationChangeHandler = (evt) => {
     const selectedDestination = this.#destinations.find(({name}) => name === evt.target.value);
 
@@ -330,6 +392,7 @@ export default class PointEditView extends AbstractStatefulView {
   updateElement(update) {
     super.updateElement(update);
 
+    this._restoreHandlers();
     this.#destroyDatepickers();
     this.#setDatepickers();
   }
@@ -340,13 +403,27 @@ export default class PointEditView extends AbstractStatefulView {
   };
 
   setSaving() {
-    this.#setControlsDisabled(true);
-    this.element.querySelector('.event__save-btn').textContent = 'Saving...';
+    this.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
   }
 
   setDeleting() {
-    this.#setControlsDisabled(true);
-    this.element.querySelector('.event__reset-btn').textContent = 'Deleting...';
+    this.updateElement({
+      isDisabled: true,
+      isDeleting: true,
+    });
+  }
+
+  setAborting() {
+    this.resetControls();
+    this._setState({
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    });
+    this.shake();
   }
 
   resetControls() {
@@ -355,9 +432,8 @@ export default class PointEditView extends AbstractStatefulView {
     this.element.querySelector('.event__reset-btn').textContent = this._state.id ? 'Delete' : 'Cancel';
   }
 
-  #setControlsDisabled(isDisabled) {
-    this.element.querySelectorAll('input, button').forEach((element) => {
-      element.disabled = isDisabled;
-    });
+  reset() {
+    this._setState(this.#initState);
+    this.updateElement(this._state);
   }
 }

@@ -1,29 +1,59 @@
 import FiltersView from '../view/filters-view.js';
-import { render } from '../framework/render.js';
+import { generateFilters } from '../utils.js';
+import { render, replace, remove } from '../framework/render.js';
 
 export default class FilterPresenter {
   #container = null;
   #filtersComponent = null;
   #filterModel = null;
-  #filters = [];
+  #model = null;
 
-  constructor({ container, filterModel, filters }) {
+  constructor({ container, filterModel, model }) {
     this.#container = container;
     this.#filterModel = filterModel;
-    this.#filters = filters;
+    this.#model = model;
   }
 
   init() {
-    this.#filtersComponent = new FiltersView(this.#filters);
-
-    this.#filtersComponent.setFilterTypeChangeHandler(
-      this.#handleFilterTypeChange
-    );
-
-    render(this.#filtersComponent, this.#container);
+    this.#model.addObserver(this.#handleModelChange);
+    this.#filterModel.addObserver(this.#handleFilterModelChange);
+    this.#renderFilters();
   }
 
   #handleFilterTypeChange = (filterType) => {
     this.#filterModel.setActiveFilter(filterType);
   };
+
+  #handleModelChange = () => {
+    this.#updateFiltersView();
+  };
+
+  #handleFilterModelChange = () => {
+    this.#updateFiltersView();
+  };
+
+  #renderFilters() {
+    const filters = this.#getFiltersData();
+    this.#filtersComponent = new FiltersView(filters);
+    this.#filtersComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
+    render(this.#filtersComponent, this.#container);
+  }
+
+  #updateFiltersView() {
+    const prevComponent = this.#filtersComponent;
+    const filters = this.#getFiltersData();
+
+    this.#filtersComponent = new FiltersView(filters);
+    this.#filtersComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
+
+    replace(this.#filtersComponent, prevComponent);
+    remove(prevComponent);
+  }
+
+  #getFiltersData() {
+    return generateFilters(
+      this.#model.getPoints(),
+      this.#filterModel.getActiveFilter()
+    );
+  }
 }
