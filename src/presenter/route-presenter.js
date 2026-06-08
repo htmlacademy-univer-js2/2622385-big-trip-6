@@ -19,6 +19,7 @@ export class RoutePresenter {
   #model;
   #filterModel;
 
+  #filterPresenter = null;
   #currentSortType = SortType.DAY;
   #pointPresenters = new Map();
   #addNewPointPresenter = null;

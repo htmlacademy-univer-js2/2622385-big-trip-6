@@ -54,4 +54,8 @@ export default class FiltersView extends AbstractView {
       }
     });
   }
+
+  setActiveFilter(type) {
+    this._filters.type = type;
+  }
 }
