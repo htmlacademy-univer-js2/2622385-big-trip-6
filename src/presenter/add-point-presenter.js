@@ -1,13 +1,11 @@
 import PointEditView from '../view/point-edit-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
-import { UserAction } from '../utils.js';
+import { UserAction } from '../model/const.js';
 
 export default class AddPointPresenter {
-  #container;
-  #model;
-
-  #editComponent = null;
-
+  #container = null;
+  #model = null;
+  #pointEditComponent = null;
   #onDataChange = null;
   #onClose = null;
 
@@ -30,7 +28,7 @@ export default class AddPointPresenter {
       offerIds: [],
     };
 
-    this.#editComponent = new PointEditView({
+    this.#pointEditComponent = new PointEditView({
       editingEvent: emptyPoint,
       destinations: this.#model.getDestinations(),
       offersModel: this.#model,
@@ -39,20 +37,33 @@ export default class AddPointPresenter {
       onDelete: this.#handleClose,
     });
 
-    render(this.#editComponent, this.#container, RenderPosition.AFTERBEGIN);
+    render(this.#pointEditComponent, this.#container, RenderPosition.AFTERBEGIN);
+    document.addEventListener('keydown', this.#handleEscKeyDown);
   }
 
   destroy() {
-    if (!this.#editComponent) {
+    if (!this.#pointEditComponent) {
       return;
     }
-    remove(this.#editComponent);
-    this.#editComponent = null;
+    document.removeEventListener('keydown', this.#handleEscKeyDown);
+    remove(this.#pointEditComponent);
+    this.#pointEditComponent = null;
+  }
+
+  setSaving() {
+    this.#pointEditComponent.setSaving();
+  }
+
+  setAborting() {
+    this.#pointEditComponent.setAborting();
+  }
+
+  setDeleting() {
+    this.#pointEditComponent.setDeleting();
   }
 
   #handleSubmit = (point) => {
     this.#onDataChange(UserAction.ADD_POINT, null, point);
-    this.destroy();
   };
 
   #handleClose = () => {
@@ -60,15 +71,10 @@ export default class AddPointPresenter {
     this.#onClose();
   };
 
-  setSaving() {
-    this.#editComponent.setSaving();
-  }
-
-  setAborting() {
-    this.#editComponent.setAborting();
-  }
-
-  setDeleting() {
-    this.#editComponent.setDeleting();
-  }
+  #handleEscKeyDown = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      this.#handleClose();
+    }
+  };
 }

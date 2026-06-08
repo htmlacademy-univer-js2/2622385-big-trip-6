@@ -19,15 +19,24 @@ export default class PointAdapter {
   }
 
   static adaptToServer(point) {
-    return {
-      'id': point.id,
+    const serverPoint = {
       'base_price': point.basePrice,
-      'date_from': point.dateFrom,
-      'date_to': point.dateTo,
+      'date_from': point.dateFrom
+        ? point.dateFrom.toISOString()
+        : null,
+      'date_to': point.dateTo
+        ? point.dateTo.toISOString()
+        : null,
       'is_favorite': point.isFavorite,
       'destination': point.destinationId,
       'offers': point.offerIds,
       'type': point.type,
     };
+
+    if (point.id) {
+      serverPoint.id = point.id;
+    }
+
+    return serverPoint;
   }
 }

@@ -10,12 +10,9 @@ function createFilterItemTemplate(filter) {
         name="trip-filter"
         value="${filter.type}"
         ${filter.isChecked ? 'checked' : ''}
+        ${filter.disabled ? 'disabled' : ''}
       >
-
-      <label
-        class="trip-filters__filter-label"
-        for="filter-${filter.type}"
-      >
+      <label class="trip-filters__filter-label" for="filter-${filter.type}">
         ${filter.name}
       </label>
     </div>
@@ -26,7 +23,6 @@ function createFiltersTemplate(filters) {
   return `
     <form class="trip-filters" action="#" method="get">
       ${filters.map(createFilterItemTemplate).join('')}
-
       <button class="visually-hidden" type="submit">
         Accept filter
       </button>
@@ -35,15 +31,15 @@ function createFiltersTemplate(filters) {
 }
 
 export default class FiltersView extends AbstractView {
-  #FilterTypeChangeHandler;
+  #filters = null;
 
   constructor(filters) {
     super();
-    this._filters = filters;
+    this.#filters = filters;
   }
 
   get template() {
-    return createFiltersTemplate(this._filters);
+    return createFiltersTemplate(this.#filters);
   }
 
   setFilterTypeChangeHandler(callback) {
