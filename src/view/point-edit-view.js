@@ -60,7 +60,13 @@ function createEditEventTemplate(state) {
     <img class="event__photo" src="${src}" alt="${description}">
   `).join('');
 
+  const hasDescription = Boolean(destination?.description?.trim());
+  const hasPictures = Boolean(destination?.pictures?.length);
+  const hasDestinationDetails = hasDescription || hasPictures;
+
+  const hasOffers = availableOffers.length > 0;
   return `
+    <li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
         <header class="event__header">
           <div class="event__type-wrapper">
@@ -124,25 +130,42 @@ function createEditEventTemplate(state) {
           </button>` : ''}
         </header>
         <section class="event__details">
-          <section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+          ${hasOffers ? `
+          <section class="event__section event__section--offers">
+            <h3 class="event__section-title event__section-title--offers">
+              Offers
+            </h3>
 
             <div class="event__available-offers">
               ${offersTemplate}
             </div>
           </section>
-          ${destination ? `<section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${destination.description}</p>
+          ` : ''}
+          ${hasDestinationDetails ? `
+            <section class="event__section event__section--destination">
+              <h3 class="event__section-title event__section-title--destination">
+                Destination
+              </h3>
 
-            <div class="event__photos-container">
-              <div class="event__photos-tape">
-                ${destinationPhotosTemplate}
-              </div>
-            </div>
-          </section>` : ''}
+              ${hasDescription ? `
+                <p class="event__destination-description">
+                  ${destination.description}
+                </p>
+              ` : ''}
+
+              ${hasPictures ? `
+                <div class="event__photos-container">
+                  <div class="event__photos-tape">
+                    ${destinationPhotosTemplate}
+                  </div>
+                </div>
+              ` : ''}
+            </section>
+          ` : ''}
         </section>
-      </form>`;
+      </form>
+    </li>
+      `;
 }
 
 function parseState(editingEvent, destinations, availableOffers) {
@@ -165,6 +188,7 @@ function parseState(editingEvent, destinations, availableOffers) {
 }
 
 export default class PointEditView extends AbstractStatefulView {
+  #initState;
   #onRollupClick;
   #destinations;
   #offersModel;
@@ -189,12 +213,13 @@ export default class PointEditView extends AbstractStatefulView {
     this.#onRollupClick = onRollupClick;
     this.#onDelete = onDelete;
 
-    this._setState({
+    this.#initState = {
       ...parseState(editingEvent ?? {}, this.#destinations, this.#offersModel?.getOffersByType(editingEvent?.type) ?? []),
       isDisabled: false,
       isSaving: false,
-      isDeleting: false,}
-    );
+      isDeleting: false,
+    };
+    this._setState(this.#initState);
 
     this._restoreHandlers();
   }
@@ -333,6 +358,12 @@ export default class PointEditView extends AbstractStatefulView {
     });
   };
 
+  #setControlsDisabled(isDisabled) {
+    this.element.querySelectorAll('input, button').forEach((element) => {
+      element.disabled = isDisabled;
+    });
+  }
+
   #destinationChangeHandler = (evt) => {
     const selectedDestination = this.#destinations.find(({name}) => name === evt.target.value);
 
@@ -398,9 +429,8 @@ export default class PointEditView extends AbstractStatefulView {
     this.element.querySelector('.event__reset-btn').textContent = this._state.id ? 'Delete' : 'Cancel';
   }
 
-  #setControlsDisabled(isDisabled) {
-    this.element.querySelectorAll('input, button').forEach((element) => {
-      element.disabled = isDisabled;
-    });
+  reset() {
+    this._setState(this.#initState);
+    this.updateElement(this._state);
   }
 }

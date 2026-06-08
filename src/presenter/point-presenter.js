@@ -94,6 +94,7 @@ export default class PointPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#pointEditComponent.reset();
       this.#replaceFormToPoint();
     }
   }
@@ -118,11 +119,12 @@ export default class PointPresenter {
     }
 
     replace(this.#pointComponent, this.#pointEditComponent);
-    this.#mode = Mode.DEFAULT;
     document.removeEventListener(
       'keydown',
       this.#handleEscKeyDown
     );
+
+    this.#mode = Mode.DEFAULT;
   }
 
   #handleEditClick = () => {
@@ -135,6 +137,7 @@ export default class PointPresenter {
     if (evt.key === 'Escape') {
       evt.preventDefault();
 
+      this.#pointEditComponent.reset();
       this.#replaceFormToPoint();
     }
   };
@@ -159,6 +162,7 @@ export default class PointPresenter {
   };
 
   #handleRollupClick = () => {
+    this.#pointEditComponent.reset();
     this.#replaceFormToPoint();
   };
 

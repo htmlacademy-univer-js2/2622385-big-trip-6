@@ -18,7 +18,10 @@ export default class TripPresenter {
 
     this.#routePresenter = new RoutePresenter({
       model,
-      filterModel: this.#filterModel
+      filterModel: this.#filterModel,
+
+      onNewPointFormOpen: this.#disableAddPointButton,
+      onNewPointFormClose: this.#enableAddPointButton,
     });
 
     this.#tripInfoPresenter = new TripInfoPresenter({
@@ -56,5 +59,17 @@ export default class TripPresenter {
 
   #handleNewPointClick = () => {
     this.#routePresenter.createPoint();
+  };
+
+  #disableAddPointButton = () => {
+    if (this.#addPointButton) {
+      this.#addPointButton.disabled = true;
+    }
+  };
+
+  #enableAddPointButton = () => {
+    if (this.#addPointButton) {
+      this.#addPointButton.disabled = false;
+    }
   };
 }

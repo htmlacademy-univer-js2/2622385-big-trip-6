@@ -1,4 +1,26 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
+import dayjs from 'dayjs';
+
+const MINUTES_IN_HOUR = 60;
+const MINUTES_IN_DAY = 24 * MINUTES_IN_HOUR;
+
+function formatDuration(start, end) {
+  const durationMinutes = dayjs(end).diff(dayjs(start), 'minute');
+
+  if (durationMinutes < MINUTES_IN_HOUR) {
+    return `${durationMinutes}M`;
+  }
+
+  const days = Math.floor(durationMinutes / MINUTES_IN_DAY);
+  const hours = Math.floor((durationMinutes % MINUTES_IN_DAY) / MINUTES_IN_HOUR);
+  const minutes = durationMinutes % MINUTES_IN_HOUR;
+
+  if (durationMinutes < MINUTES_IN_DAY) {
+    return `${String(hours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M`;
+  }
+
+  return `${String(days).padStart(2, '0')}D ${String(hours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M`;
+}
 
 export default class PointView extends AbstractStatefulView {
   constructor(point, destination, offers) {
@@ -29,8 +51,6 @@ export default class PointView extends AbstractStatefulView {
     }
     const month = dateFrom.toLocaleString('en', { month: 'short' }).toUpperCase();
     const day = dateFrom.getDate().toString().padStart(2, '0');
-    const startTime = dateFrom.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
-    const endTime = dateTo.toLocaleTimeString('en', { hour: '2-digit', minute: '2-digit' });
 
     const offersHtml = offers.length > 0 ? `
       <ul class="event__selected-offers">
@@ -45,6 +65,7 @@ export default class PointView extends AbstractStatefulView {
     ` : '';
 
     const favoriteClass = this._state.isFavorite ? 'event__favorite-btn--active' : '';
+    const duration = formatDuration(dateFrom, dateTo);
 
     return `
       <li class="trip-events__item">
@@ -56,10 +77,11 @@ export default class PointView extends AbstractStatefulView {
           <h3 class="event__title">${point.type} ${destination?.name ?? ''}</h3>
           <div class="event__schedule">
             <p class="event__time">
-              <time class="event__start-time" datetime="${dateFrom.toISOString()}">${startTime}</time>
+              <time class="event__start-time" datetime="${dayjs(dateFrom).toISOString()}">${dayjs(dateFrom).format('HH:mm')}</time>
               &mdash;
-              <time class="event__end-time" datetime="${dateTo.toISOString()}">${endTime}</time>
+              <time class="event__end-time" datetime="${dayjs(dateTo).toISOString()}">${dayjs(dateTo).format('HH:mm')}</time>
             </p>
+            <p class="event__duration">${duration}</p>
           </div>  
           <p class="event__price">
             €&nbsp;<span class="event__price-value">${point.basePrice}</span>

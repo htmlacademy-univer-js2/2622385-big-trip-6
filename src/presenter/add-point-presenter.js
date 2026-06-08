@@ -40,12 +40,14 @@ export default class AddPointPresenter {
     });
 
     render(this.#pointEditComponent, this.#container, RenderPosition.AFTERBEGIN);
+    document.addEventListener('keydown', this.#KeyEscDownHandler);
   }
 
   destroy() {
     if (!this.#pointEditComponent) {
       return;
     }
+    document.removeEventListener('keydown', this.#KeyEscDownHandler);
     remove(this.#pointEditComponent);
     this.#pointEditComponent = null;
   }
@@ -70,4 +72,11 @@ export default class AddPointPresenter {
   setDeleting() {
     this.#pointEditComponent.setDeleting();
   }
+
+  #KeyEscDownHandler = (evt) => {
+    if (evt.key === 'Escape' || evt.key === 'Esc') {
+      evt.preventDefault();
+      this.#handleClose();
+    }
+  };
 }

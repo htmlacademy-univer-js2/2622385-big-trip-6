@@ -31,10 +31,14 @@ export class RoutePresenter {
     upperLimit: TimeLimit.UPPER_LIMIT,
   });
 
-  constructor({model, filterModel}) {
+  #onNewPointFormOpen;
+  #onNewPointFormClose;
+
+  constructor({model, filterModel, onNewPointFormOpen, onNewPointFormClose}) {
     this.#model = model;
     this.#filterModel = filterModel;
-
+    this.#onNewPointFormOpen = onNewPointFormOpen;
+    this.#onNewPointFormClose = onNewPointFormClose;
     this.#model.addObserver(
       this.#handleModelChange
     );
@@ -129,7 +133,7 @@ export class RoutePresenter {
     if (this.#addNewPointPresenter !== null) {
       return;
     }
-
+    this.#onNewPointFormOpen();
     this.#currentSortType = SortType.DAY;
     this.#handleModeChange();
     this.#filterModel.setActiveFilter(FilterType.EVERYTHING);
@@ -149,6 +153,12 @@ export class RoutePresenter {
   #destroyNewPoint = () => {
     this.#addNewPointPresenter?.destroy();
     this.#addNewPointPresenter = null;
+
+    this.#onNewPointFormClose();
+
+    if (this.#getFilteredPoints().length === 0) {
+      this.#renderEmptyPoints();
+    }
   };
 
   #renderPoints() {
