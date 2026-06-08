@@ -417,13 +417,8 @@ export default class PointEditView extends AbstractStatefulView {
   }
 
   setAborting() {
-    // 1. Запускаем анимацию тряски (DOM-элемент остается на месте)
     this.shake();
-    // 2. Мгновенно включаем кнопки и возвращаем текст
-    // (без перерисовки шаблона, поэтому анимация не прерывается!)
     this.resetControls();
-    // 3. Обновляем внутреннее состояние компонента,
-    // чтобы оно совпадало с тем, что теперь в DOM
     this._setState({
       isDisabled: false,
       isSaving: false,
