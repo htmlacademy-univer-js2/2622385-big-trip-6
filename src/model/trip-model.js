@@ -3,23 +3,18 @@ import PointAdapter from '../adapter/point-adapter.js';
 
 export default class TripModel extends Observable {
   #api = null;
-
   #destinations = [];
   #offers = [];
   #points = [];
   #errorObservers = [];
 
-  constructor({api}) {
+  constructor({ api }) {
     super();
     this.#api = api;
   }
 
   setErrorObserver(observer) {
     this.#errorObservers.push(observer);
-  }
-
-  #notifyErrorObservers() {
-    this.#errorObservers.forEach((observer) => observer());
   }
 
   async init() {
@@ -36,6 +31,14 @@ export default class TripModel extends Observable {
     }
 
     this._notify();
+  }
+
+  getPoints() {
+    return this.#points;
+  }
+
+  getPointById(id) {
+    return this.#points.find((point) => point.id === id) ?? null;
   }
 
   getDestinations() {
@@ -60,45 +63,30 @@ export default class TripModel extends Observable {
       .filter((offer) => offerIds.includes(offer.id));
   }
 
-  getPoints() {
-    return this.#points;
-  }
-
-  getPointById(id) {
-    return this.#points.find((point) => point.id === id) ?? null;
-  }
-
   async updatePoint(update) {
-    const updatedPoint =
-      await this.#api.updatePoint(update);
-
+    const updatedPoint = await this.#api.updatePoint(update);
     this.#points = this.#points.map((point) =>
-      point.id === updatedPoint.id
-        ? updatedPoint
-        : point
+      point.id === updatedPoint.id ? updatedPoint : point
     );
     this._notify();
     return updatedPoint;
   }
 
   async createPoint(point) {
-    const response = await this.#api.addPoint(
-      PointAdapter.adaptToServer(point)
-    );
+    const response = await this.#api.addPoint(PointAdapter.adaptToServer(point));
     const newPoint = PointAdapter.adaptToClient(response);
     this.#points.push(newPoint);
-
     this._notify();
     return newPoint;
   }
 
   async deletePoint(point) {
     await this.#api.deletePoint(point);
-
-    this.#points = this.#points.filter(
-      (p) => p.id !== point.id
-    );
-
+    this.#points = this.#points.filter((p) => p.id !== point.id);
     this._notify();
+  }
+
+  #notifyErrorObservers() {
+    this.#errorObservers.forEach((observer) => observer());
   }
 }

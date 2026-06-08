@@ -1,4 +1,4 @@
-import AbstractStatefulView from '../framework/view/abstract-stateful-view';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import dayjs from 'dayjs';
 
 const MINUTES_IN_HOUR = 60;
@@ -6,11 +6,9 @@ const MINUTES_IN_DAY = 24 * MINUTES_IN_HOUR;
 
 function formatDuration(start, end) {
   const durationMinutes = dayjs(end).diff(dayjs(start), 'minute');
-
   if (durationMinutes < MINUTES_IN_HOUR) {
     return `${durationMinutes}M`;
   }
-
   const days = Math.floor(durationMinutes / MINUTES_IN_DAY);
   const hours = Math.floor((durationMinutes % MINUTES_IN_DAY) / MINUTES_IN_HOUR);
   const minutes = durationMinutes % MINUTES_IN_HOUR;
@@ -23,12 +21,17 @@ function formatDuration(start, end) {
 }
 
 export default class PointView extends AbstractStatefulView {
+  _destination = null;
+  _offers = null;
+  _onEditClick = null;
+  _onFavoriteClick = null;
+
   constructor(point, destination, offers) {
     super();
     this._destination = destination;
     this._offers = offers;
     this._setState({
-      point: point,
+      point,
       isFavorite: point.isFavorite
     });
   }
@@ -37,21 +40,47 @@ export default class PointView extends AbstractStatefulView {
     return this._getTemplate();
   }
 
+  getPoint() {
+    return this._state.point;
+  }
+
+  updateData(point, destination, offers) {
+    this._destination = destination;
+    this._offers = offers;
+    this.updateElement({
+      point,
+      isFavorite: point.isFavorite
+    });
+  }
+
+  setEditClickHandler(callback) {
+    this._onEditClick = callback;
+    const editButton = this.element.querySelector('.event__rollup-btn');
+    if (editButton) {
+      editButton.addEventListener('click', this._onEditClick);
+    }
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._onFavoriteClick = callback;
+    const favoriteButton = this.element.querySelector('.event__favorite-btn');
+    if (favoriteButton) {
+      favoriteButton.addEventListener('click', this._onFavoriteClick);
+    }
+  }
+
   _getTemplate() {
     const { point } = this._state;
     const { _destination: destination, _offers: offers } = this;
-    const dateFrom = point.dateFrom
-      ? new Date(point.dateFrom)
-      : null;
-    const dateTo = point.dateTo
-      ? new Date(point.dateTo)
-      : null;
+    const dateFrom = point.dateFrom ? new Date(point.dateFrom) : null;
+    const dateTo = point.dateTo ? new Date(point.dateTo) : null;
+
     if (!dateFrom || !dateTo) {
       return '';
     }
+
     const month = dateFrom.toLocaleString('en', { month: 'short' }).toUpperCase();
     const day = dateFrom.getDate().toString().padStart(2, '0');
-
     const offersHtml = offers.length > 0 ? `
       <ul class="event__selected-offers">
         ${offers.map((offer) => `
@@ -84,7 +113,7 @@ export default class PointView extends AbstractStatefulView {
             <p class="event__duration">${duration}</p>
           </div>  
           <p class="event__price">
-            €&nbsp;<span class="event__price-value">${point.basePrice}</span>
+            &euro;&nbsp;<span class="event__price-value">${point.basePrice}</span>
           </p>
           ${offersHtml}
           <button class="event__favorite-btn ${favoriteClass}" type="button">
@@ -101,51 +130,22 @@ export default class PointView extends AbstractStatefulView {
     `;
   }
 
-  updateData(point, destination, offers) {
-    this._destination = destination;
-    this._offers = offers;
-    this.updateElement({
-      point: point,
-      isFavorite: point.isFavorite
-    });
-  }
-
   _restoreHandlers() {
     if (!this.element) {
       return;
     }
-
     if (this._onEditClick) {
       const editButton = this.element.querySelector('.event__rollup-btn');
       if (editButton) {
         editButton.addEventListener('click', this._onEditClick);
       }
     }
+
     if (this._onFavoriteClick) {
       const favoriteButton = this.element.querySelector('.event__favorite-btn');
       if (favoriteButton) {
         favoriteButton.addEventListener('click', this._onFavoriteClick);
       }
     }
-  }
-
-  setEditClickHandler(callback) {
-    this._onEditClick = callback;
-    const editButton = this.element.querySelector('.event__rollup-btn');
-    if (editButton) {
-      editButton.addEventListener('click', this._onEditClick);
-    }
-  }
-
-  setFavoriteClickHandler(callback) {
-    this._onFavoriteClick = callback;
-    const favoriteButton = this.element.querySelector('.event__favorite-btn');
-    if (favoriteButton) {
-      favoriteButton.addEventListener('click', this._onFavoriteClick);
-    }
-  }
-
-  getPoint() {
-    return this._state.point;
   }
 }
