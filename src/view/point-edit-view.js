@@ -417,13 +417,13 @@ export default class PointEditView extends AbstractStatefulView {
   }
 
   setAborting() {
-    this.shake();
     this.resetControls();
     this._setState({
       isDisabled: false,
       isSaving: false,
       isDeleting: false,
     });
+    this.shake();
   }
 
   resetControls() {
