@@ -9,6 +9,7 @@ import { FilterType } from '../model/const.js';
 import AddPointPresenter from './add-point-presenter.js';
 import LoadingView from '../view/loading-view.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker';
+import ErrorMessageView from '../view/error-message-view.js';
 
 const TimeLimit = {
   LOWER_LIMIT: 350,
@@ -16,6 +17,7 @@ const TimeLimit = {
 };
 
 export class RoutePresenter {
+  #errorComponent = null;
   #model;
   #filterModel;
   #currentSortType = SortType.DAY;
@@ -41,6 +43,7 @@ export class RoutePresenter {
 
     this.#model.addObserver(this.#handleModelChange);
     this.#filterModel.addObserver(this.#handleModelChange);
+    this.#model.setErrorObserver(this.#handleModelError);
   }
 
   init() {
@@ -130,6 +133,22 @@ export class RoutePresenter {
     if (this.#getFilteredPoints().length === 0) {
       this.#renderEmptyPoints();
     }
+  };
+
+  #clearError() {
+    if (this.#errorComponent) {
+      remove(this.#errorComponent);
+      this.#errorComponent = null;
+    }
+  }
+
+  #handleModelError = () => {
+    remove(this.#loadingComponent);
+    this.#clearPointList();
+    remove(this.#sortingView);
+    this.#sortingView = null;
+    this.#emptyComponent = new ErrorMessageView();
+    render(this.#emptyComponent, this.#pointListComponent.element);
   };
 
   #renderPoints() {

@@ -7,10 +7,19 @@ export default class TripModel extends Observable {
   #destinations = [];
   #offers = [];
   #points = [];
+  #errorObservers = [];
 
   constructor({api}) {
     super();
     this.#api = api;
+  }
+
+  setErrorObserver(observer) {
+    this.#errorObservers.push(observer);
+  }
+
+  #notifyErrorObservers() {
+    this.#errorObservers.forEach((observer) => observer());
   }
 
   async init() {
@@ -22,6 +31,8 @@ export default class TripModel extends Observable {
       this.#points = [];
       this.#destinations = [];
       this.#offers = [];
+      this.#notifyErrorObservers();
+      return;
     }
 
     this._notify();
