@@ -4,7 +4,7 @@ import FilterModel from './model/filter-model.js';
 import BigTripApi from './api/big-trip-api.js';
 
 if (localStorage.getItem('token') === null) {
-  localStorage.setItem('token', crypto.randomUUID());
+  localStorage.setItem('token', Math.random().toString(36).substring(2));
 }
 
 const ENDPOINT = 'https://24.objects.htmlacademy.pro/big-trip';
