@@ -7,7 +7,7 @@ if (localStorage.getItem('token') === null) {
   localStorage.setItem('token', Math.random().toString(36).substring(2));
 }
 
-const ENDPOINT = 'https://24.objects.htmlacademy.pro/spec/big-trip.';
+const ENDPOINT = 'https://23.objects.htmlacademy.pro/big-trip';
 const AUTHORIZATION = `Basic ${localStorage.getItem('token')}`;
 
 const api = new BigTripApi(

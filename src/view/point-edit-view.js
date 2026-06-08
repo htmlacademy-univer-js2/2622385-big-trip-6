@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
-import {EVENT_TYPES} from '../utils.js';
+import { EVENT_TYPES } from '../model/const';
 
 function createEditEventTemplate(state) {
   const {

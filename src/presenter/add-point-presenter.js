@@ -1,6 +1,6 @@
 import PointEditView from '../view/point-edit-view.js';
 import { render, remove, RenderPosition } from '../framework/render.js';
-import { UserAction } from '../utils.js';
+import { UserAction } from '../model/const.js';
 
 export default class AddPointPresenter {
   #container;

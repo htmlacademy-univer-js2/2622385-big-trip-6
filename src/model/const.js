@@ -41,9 +41,10 @@ export const FilterType = {
   PAST: 'past'
 };
 
-export const FilterTitles = {
-  [FilterType.EVERYTHING]: 'Everything',
-  [FilterType.FUTURE]: 'Future',
-  [FilterType.PRESENT]: 'Present',
-  [FilterType.PAST]: 'Past'
+export const EVENT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
+
+export const UserAction = {
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_POINT',
+  DELETE_POINT: 'DELETE_POINT',
 };

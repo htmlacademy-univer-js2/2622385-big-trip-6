@@ -1,6 +1,6 @@
 import PointView from '../view/point-view.js';
 import PointEditView from '../view/point-edit-view.js';
-import { UserAction } from '../utils.js';
+import { UserAction } from '../model/const.js';
 import { render, remove, replace } from '../framework/render.js';
 
 const Mode = {

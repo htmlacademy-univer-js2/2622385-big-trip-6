@@ -15,58 +15,6 @@ export const getFilteredPoints = (points, filterType) => {
   }
 };
 
-function getRandomArrayElement(items) {
-  return items[Math.floor(Math.random() * items.length)];
-}
-
-function getRandomObjectField(object) {
-  const values = Object.values(object);
-  return values[Math.floor(Math.random() * values.length)];
-}
-
-export {getRandomArrayElement};
-export {getRandomObjectField};
-
-const filterEverything = (points) => [...points];
-
-const filterFuture = (points) => {
-  const now = new Date();
-  return points.filter((point) => new Date(point.dateFrom) > now);
-};
-
-const filterPresent = (points) => {
-  const now = new Date();
-  return points.filter((point) => {
-    const dateFrom = new Date(point.dateFrom);
-    const dateTo = new Date(point.dateTo);
-    return dateFrom <= now && dateTo >= now;
-  });
-};
-
-const filterPast = (points) => {
-  const now = new Date();
-  return points.filter((point) => new Date(point.dateTo) < now);
-};
-
-export const filters = {
-  [FilterType.EVERYTHING]: filterEverything,
-  [FilterType.FUTURE]: filterFuture,
-  [FilterType.PRESENT]: filterPresent,
-  [FilterType.PAST]: filterPast
-};
-
-export const getFiltersInfo = (points) => {
-  const filtersInfo = {};
-  Object.entries(filters).forEach(([filterType, filterFn]) => {
-    const filteredPoints = filterFn(points);
-    filtersInfo[filterType] = {
-      count: filteredPoints.length,
-      isDisabled: filteredPoints.length === 0
-    };
-  });
-  return filtersInfo;
-};
-
 export function generateFilters(points, currentFilterType) {
   const now = new Date();
   return [
@@ -75,14 +23,14 @@ export function generateFilters(points, currentFilterType) {
       name: 'Everything',
       count: points.length,
       disabled: points.length === 0,
-      isChecked: currentFilterType === FilterType.EVERYTHING, // <-- ДОБАВЛЕНО
+      isChecked: currentFilterType === FilterType.EVERYTHING,
     },
     {
       type: FilterType.FUTURE,
       name: 'Future',
       count: points.filter((point) => new Date(point.dateFrom) > now).length,
       disabled: !points.some((point) => new Date(point.dateFrom) > now),
-      isChecked: currentFilterType === FilterType.FUTURE, // <-- ДОБАВЛЕНО
+      isChecked: currentFilterType === FilterType.FUTURE,
     },
     {
       type: FilterType.PRESENT,
@@ -97,22 +45,14 @@ export function generateFilters(points, currentFilterType) {
         const end = new Date(point.dateTo);
         return start <= now && end >= now;
       }),
-      isChecked: currentFilterType === FilterType.PRESENT, // <-- ДОБАВЛЕНО
+      isChecked: currentFilterType === FilterType.PRESENT,
     },
     {
       type: FilterType.PAST,
       name: 'Past',
       count: points.filter((point) => new Date(point.dateTo) < now).length,
       disabled: !points.some((point) => new Date(point.dateTo) < now),
-      isChecked: currentFilterType === FilterType.PAST, // <-- ДОБАВЛЕНО
+      isChecked: currentFilterType === FilterType.PAST,
     },
   ];
 }
-
-export const EVENT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
-
-export const UserAction = {
-  UPDATE_POINT: 'UPDATE_POINT',
-  ADD_POINT: 'ADD_POINT',
-  DELETE_POINT: 'DELETE_POINT',
-};

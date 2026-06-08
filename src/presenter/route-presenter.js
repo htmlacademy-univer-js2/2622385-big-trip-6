@@ -4,8 +4,8 @@ import EmptyPointsView from '../view/empty-points-view.js';
 import { render, RenderPosition, remove } from '../framework/render.js';
 import PointPresenter from './point-presenter.js';
 import { SortType } from '../view/sorting-view.js';
-import { getFilteredPoints, UserAction } from '../utils.js';
-import { FilterType } from '../model/const.js';
+import { getFilteredPoints} from '../utils.js';
+import { UserAction, FilterType } from '../model/const.js';
 import AddPointPresenter from './add-point-presenter.js';
 import LoadingView from '../view/loading-view.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker';
@@ -17,7 +17,6 @@ const TimeLimit = {
 };
 
 export class RoutePresenter {
-  #errorComponent = null;
   #model;
   #filterModel;
   #currentSortType = SortType.DAY;
@@ -134,13 +133,6 @@ export class RoutePresenter {
       this.#renderEmptyPoints();
     }
   };
-
-  #clearError() {
-    if (this.#errorComponent) {
-      remove(this.#errorComponent);
-      this.#errorComponent = null;
-    }
-  }
 
   #handleModelError = () => {
     remove(this.#loadingComponent);
