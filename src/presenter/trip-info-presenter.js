@@ -10,11 +10,11 @@ export default class TripInfoPresenter {
   constructor({ container, model }) {
     this.#container = container;
     this.#model = model;
+
+    this.#model.addObserver(this.#handleModelChange);
   }
 
   init() {
-    this.#model.addObserver(this.#handleModelChange);
-
     this.#renderInfo();
   }
 

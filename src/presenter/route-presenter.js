@@ -34,6 +34,14 @@ export class RoutePresenter {
   constructor({model, filterModel}) {
     this.#model = model;
     this.#filterModel = filterModel;
+
+    this.#model.addObserver(
+      this.#handleModelChange
+    );
+
+    this.#filterModel.addObserver(
+      this.#handleModelChange
+    );
   }
 
   init() {
@@ -50,23 +58,19 @@ export class RoutePresenter {
 
   renderBoard() {
     remove(this.#loadingComponent);
-
-    if (this.#model.getPoints().length === 0) {
-      this.#renderEmptyPoints();
-      return;
-    }
-
-    this.#filterModel.addObserver(
-      this.#handleModelChange
-    );
-
-    this.#renderSorting();
-    this.#renderPoints();
   }
 
   #renderEmptyPoints() {
+    if (this.#emptyComponent) {
+      return;
+    }
+
     this.#emptyComponent = new EmptyPointsView();
-    render(this.#emptyComponent, this.#pointListComponent.element);
+
+    render(
+      this.#emptyComponent,
+      this.#pointListComponent.element
+    );
   }
 
   #renderSorting() {
@@ -243,9 +247,16 @@ export class RoutePresenter {
 
   #handleModelChange = () => {
     this.#currentSortType = SortType.DAY;
+
     this.#clearPointList();
 
     remove(this.#sortingView);
+    this.#sortingView = null;
+
+    if (this.#model.getPoints().length === 0) {
+      this.#renderEmptyPoints();
+      return;
+    }
 
     this.#renderSorting();
     this.#renderPoints();
