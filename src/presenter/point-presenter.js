@@ -179,7 +179,11 @@ export default class PointPresenter {
   }
 
   setAborting() {
-    this.#pointEditComponent.setAborting();
+    if (this.#mode === Mode.EDITING) {
+      this.#pointEditComponent.setAborting();
+    } else {
+      this.#pointComponent.shake();
+    }
   }
 
   setDeleting() {

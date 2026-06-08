@@ -199,8 +199,7 @@ export class RoutePresenter {
           this.#addNewPointPresenter.setSaving();
           try {
             await this.#model.createPoint(data);
-            this.#addNewPointPresenter.destroy();
-            this.#addNewPointPresenter = null;
+            this.#destroyNewPoint();
             this.#clearPointList();
             this.#renderPoints();
           } catch(err) {

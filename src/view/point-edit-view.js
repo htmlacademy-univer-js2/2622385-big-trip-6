@@ -392,6 +392,7 @@ export default class PointEditView extends AbstractStatefulView {
   updateElement(update) {
     super.updateElement(update);
 
+    this._restoreHandlers();
     this.#destroyDatepickers();
     this.#setDatepickers();
   }
@@ -403,7 +404,6 @@ export default class PointEditView extends AbstractStatefulView {
 
   setSaving() {
     this.updateElement({
-      ...this._state,
       isDisabled: true,
       isSaving: true,
     });
@@ -411,22 +411,18 @@ export default class PointEditView extends AbstractStatefulView {
 
   setDeleting() {
     this.updateElement({
-      ...this._state,
       isDisabled: true,
       isDeleting: true,
     });
   }
 
   setAborting() {
-    const resetState = {
-      ...this._state,
-      isDisabled: false,
-      isSaving: false,
-      isDeleting: false,
-    };
-
     this.shake(() => {
-      this.updateElement(resetState);
+      this.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
     });
   }
 
