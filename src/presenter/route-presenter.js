@@ -56,7 +56,8 @@ export class RoutePresenter {
     if (this.#emptyComponent) {
       return;
     }
-    this.#emptyComponent = new EmptyPointsView();
+    const filterType = this.#filterModel.getActiveFilter();
+    this.#emptyComponent = new EmptyPointsView(filterType);
     render(this.#emptyComponent, this.#pointListComponent.element);
   }
 
