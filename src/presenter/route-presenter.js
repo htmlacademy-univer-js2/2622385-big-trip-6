@@ -18,8 +18,6 @@ const TimeLimit = {
 export class RoutePresenter {
   #model;
   #filterModel;
-
-  #filterPresenter = null;
   #currentSortType = SortType.DAY;
   #pointPresenters = new Map();
   #addNewPointPresenter = null;
@@ -35,30 +33,19 @@ export class RoutePresenter {
   #onNewPointFormOpen;
   #onNewPointFormClose;
 
-  constructor({model, filterModel, onNewPointFormOpen, onNewPointFormClose}) {
+  constructor({ model, filterModel, onNewPointFormOpen, onNewPointFormClose }) {
     this.#model = model;
     this.#filterModel = filterModel;
     this.#onNewPointFormOpen = onNewPointFormOpen;
     this.#onNewPointFormClose = onNewPointFormClose;
-    this.#model.addObserver(
-      this.#handleModelChange
-    );
 
-    this.#filterModel.addObserver(
-      this.#handleModelChange
-    );
+    this.#model.addObserver(this.#handleModelChange);
+    this.#filterModel.addObserver(this.#handleModelChange);
   }
 
   init() {
-    render(
-      this.#pointListComponent,
-      document.querySelector('.trip-events')
-    );
-
-    render(
-      this.#loadingComponent,
-      this.#pointListComponent.element
-    );
+    render(this.#pointListComponent, document.querySelector('.trip-events'));
+    render(this.#loadingComponent, this.#pointListComponent.element);
   }
 
   renderBoard() {
@@ -69,41 +56,26 @@ export class RoutePresenter {
     if (this.#emptyComponent) {
       return;
     }
-
     this.#emptyComponent = new EmptyPointsView();
-
-    render(
-      this.#emptyComponent,
-      this.#pointListComponent.element
-    );
+    render(this.#emptyComponent, this.#pointListComponent.element);
   }
 
   #renderSorting() {
     this.#sortingView = new SortingView(this.#currentSortType);
     this.#sortingView.setSortTypeChangeHandler(this.#handleSortTypeChange);
-
-    render(
-      this.#sortingView,
-      document.querySelector('.trip-events'),
-      RenderPosition.AFTERBEGIN,
-    );
+    render(this.#sortingView, document.querySelector('.trip-events'), RenderPosition.AFTERBEGIN);
   }
 
   #handleSortTypeChange = (sortType) => {
     this.#currentSortType = sortType;
-
     this.#clearPointList();
-
     remove(this.#sortingView);
-
     this.#renderSorting();
     this.#renderPoints();
   };
 
   #clearPointList() {
-    this.#pointPresenters.forEach((presenter) =>
-      presenter.destroy()
-    );
+    this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters = new Map();
     remove(this.#emptyComponent);
     this.#emptyComponent = null;
@@ -111,20 +83,16 @@ export class RoutePresenter {
 
   #getSortedPoints(points) {
     const sorted = [...points];
-
     switch (this.#currentSortType) {
       case SortType.DAY:
         return sorted.sort((a, b) => new Date(a?.dateFrom || 0) - new Date(b?.dateFrom || 0));
-
       case SortType.TIME:
         return sorted.sort((a, b) =>
           ((new Date(b?.dateTo || 0) - new Date(b?.dateFrom || 0))) -
           ((new Date(a?.dateTo || 0) - new Date(a?.dateFrom || 0)))
         );
-
       case SortType.PRICE:
         return sorted.sort((a, b) => b.basePrice - a.basePrice);
-
       default:
         return sorted;
     }
@@ -134,7 +102,9 @@ export class RoutePresenter {
     if (this.#addNewPointPresenter !== null) {
       return;
     }
+
     this.#onNewPointFormOpen();
+
     this.#currentSortType = SortType.DAY;
     this.#handleModeChange();
     this.#filterModel.setActiveFilter(FilterType.EVERYTHING);
@@ -154,7 +124,6 @@ export class RoutePresenter {
   #destroyNewPoint = () => {
     this.#addNewPointPresenter?.destroy();
     this.#addNewPointPresenter = null;
-
     this.#onNewPointFormClose();
 
     if (this.#getFilteredPoints().length === 0) {
@@ -165,7 +134,6 @@ export class RoutePresenter {
   #renderPoints() {
     const filteredPoints = this.#getFilteredPoints();
     const points = this.#getSortedPoints(filteredPoints);
-
     if (points.length === 0) {
       this.#renderEmptyPoints();
       return;
@@ -197,35 +165,27 @@ export class RoutePresenter {
             presenter.setAborting();
           }
           break;
-
         case UserAction.DELETE_POINT:
           presenter.setDeleting();
           try {
             await this.#model.deletePoint(data);
-
             this.#pointPresenters.get(data.id)?.destroy();
             this.#pointPresenters.delete(data.id);
           } catch(err) {
             presenter.setAborting();
           }
           break;
-
         case UserAction.ADD_POINT:
           this.#addNewPointPresenter.setSaving();
-
           try {
             await this.#model.createPoint(data);
-
             this.#addNewPointPresenter.destroy();
             this.#addNewPointPresenter = null;
-
             this.#clearPointList();
             this.#renderPoints();
-
           } catch(err) {
             this.#addNewPointPresenter.setAborting();
           }
-
           break;
       }
     } finally {
@@ -236,7 +196,6 @@ export class RoutePresenter {
   #rerenderPoint(id) {
     const presenter = this.#pointPresenters.get(id);
     const point = this.#model.getPointById(id);
-
     presenter.resetView();
     presenter.init(this.#pointListComponent, point);
   }
@@ -247,20 +206,21 @@ export class RoutePresenter {
         presenter.resetView();
       }
     });
+
+    if (this.#addNewPointPresenter !== null) {
+      this.#destroyNewPoint();
+    }
   };
 
   #getFilteredPoints() {
     const points = this.#model.getPoints();
     const filterType = this.#filterModel.getActiveFilter();
-
     return getFilteredPoints(points, filterType);
   }
 
   #handleModelChange = () => {
     this.#currentSortType = SortType.DAY;
-
     this.#clearPointList();
-
     remove(this.#sortingView);
     this.#sortingView = null;
 
@@ -273,13 +233,8 @@ export class RoutePresenter {
     this.#renderPoints();
   };
 
-  startAddPoint(addPointPresenter) {
-    this.#addNewPointPresenter = addPointPresenter;
-  }
-
   resetSort() {
     this.#currentSortType = SortType.DAY;
-
     remove(this.#sortingView);
     this.#renderSorting();
     this.#renderPoints();

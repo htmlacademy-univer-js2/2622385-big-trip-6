@@ -29,20 +29,11 @@ export default class FilterPresenter {
       this.#model.getPoints(),
       this.#filterModel.getActiveFilter()
     );
-
     this.#filtersComponent = new FiltersView(filters);
     this.#filtersComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
 
     render(this.#filtersComponent, this.#container);
   }
-
-  #handleModelChange = () => {
-    this.#updateFiltersView();
-  };
-
-  #handleFilterModelChange = () => {
-    this.#updateFiltersView();
-  };
 
   #updateFiltersView() {
     const prevComponent = this.#filtersComponent;
@@ -58,4 +49,12 @@ export default class FilterPresenter {
     replace(this.#filtersComponent, prevComponent);
     remove(prevComponent);
   }
+
+  #handleModelChange = () => {
+    this.#updateFiltersView();
+  };
+
+  #handleFilterModelChange = () => {
+    this.#updateFiltersView();
+  };
 }

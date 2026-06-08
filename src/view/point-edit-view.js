@@ -264,6 +264,7 @@ export default class PointEditView extends AbstractStatefulView {
     this.element.addEventListener('submit', this.#submitHandler);
     this.element.querySelector('.event__type-group').addEventListener('change', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+    this.element.querySelector('.event__input--price').addEventListener('input', this.#priceChangeHandler);
     this.#setDatepickers();
     this.element
       .querySelector('.event__reset-btn')
@@ -277,6 +278,12 @@ export default class PointEditView extends AbstractStatefulView {
     this.#destroyDatepickers();
     super.removeElement();
   }
+
+  #priceChangeHandler = (evt) => {
+    this._setState({
+      price: Number(evt.target.value)
+    });
+  };
 
   #setDatepickers() {
     const config = {

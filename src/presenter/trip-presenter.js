@@ -19,7 +19,6 @@ export default class TripPresenter {
     this.#routePresenter = new RoutePresenter({
       model,
       filterModel: this.#filterModel,
-
       onNewPointFormOpen: this.#disableAddPointButton,
       onNewPointFormClose: this.#enableAddPointButton,
     });
@@ -53,7 +52,6 @@ export default class TripPresenter {
     if (this.#model.getPoints().length > 0) {
       this.#tripInfoPresenter.init();
     }
-
     this.#routePresenter.renderBoard();
   }
 
