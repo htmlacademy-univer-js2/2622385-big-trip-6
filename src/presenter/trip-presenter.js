@@ -1,20 +1,18 @@
-import { RoutePresenter } from './route-presenter.js';
+import RoutePresenter from './route-presenter.js';
 import FilterPresenter from './filter-presenter.js';
 import TripInfoPresenter from './trip-info-presenter.js';
 
 export default class TripPresenter {
-  #addPointButton = document.querySelector('.trip-main__event-add-btn');
-  #routePresenter;
-  #container = null;
-  #filtersContainer = null;
+  #addPointButton = null;
+  #routePresenter = null;
   #model = null;
   #filterModel = null;
   #filterPresenter = null;
   #tripInfoPresenter = null;
 
   constructor(model, filterModel) {
-    this.#filterModel = filterModel;
     this.#model = model;
+    this.#filterModel = filterModel;
 
     this.#routePresenter = new RoutePresenter({
       model,
@@ -30,16 +28,18 @@ export default class TripPresenter {
   }
 
   init() {
-    this.#container = document.querySelector('.trip-events');
-    this.#filtersContainer = document.querySelector('.trip-controls__filters');
-    this.#addPointButton.addEventListener('click', this.#handleNewPointClick);
+    const container = document.querySelector('.trip-events');
+    const filtersContainer = document.querySelector('.trip-controls__filters');
+    this.#addPointButton = document.querySelector('.trip-main__event-add-btn');
 
-    if (!this.#container) {
+    if (!container) {
       return;
     }
 
+    this.#addPointButton.addEventListener('click', this.#handleNewPointClick);
+
     this.#filterPresenter = new FilterPresenter({
-      container: this.#filtersContainer,
+      container: filtersContainer,
       filterModel: this.#filterModel,
       model: this.#model,
     });

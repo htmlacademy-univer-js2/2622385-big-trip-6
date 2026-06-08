@@ -3,11 +3,9 @@ import { render, remove, RenderPosition } from '../framework/render.js';
 import { UserAction } from '../model/const.js';
 
 export default class AddPointPresenter {
-  #container;
-  #model;
-
+  #container = null;
+  #model = null;
   #pointEditComponent = null;
-
   #onDataChange = null;
   #onClose = null;
 
@@ -40,26 +38,17 @@ export default class AddPointPresenter {
     });
 
     render(this.#pointEditComponent, this.#container, RenderPosition.AFTERBEGIN);
-    document.addEventListener('keydown', this.#KeyEscDownHandler);
+    document.addEventListener('keydown', this.#handleEscKeyDown);
   }
 
   destroy() {
     if (!this.#pointEditComponent) {
       return;
     }
-    document.removeEventListener('keydown', this.#KeyEscDownHandler);
+    document.removeEventListener('keydown', this.#handleEscKeyDown);
     remove(this.#pointEditComponent);
     this.#pointEditComponent = null;
   }
-
-  #handleSubmit = (point) => {
-    this.#onDataChange(UserAction.ADD_POINT, null, point);
-  };
-
-  #handleClose = () => {
-    this.destroy();
-    this.#onClose();
-  };
 
   setSaving() {
     this.#pointEditComponent.setSaving();
@@ -73,7 +62,16 @@ export default class AddPointPresenter {
     this.#pointEditComponent.setDeleting();
   }
 
-  #KeyEscDownHandler = (evt) => {
+  #handleSubmit = (point) => {
+    this.#onDataChange(UserAction.ADD_POINT, null, point);
+  };
+
+  #handleClose = () => {
+    this.destroy();
+    this.#onClose();
+  };
+
+  #handleEscKeyDown = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
       this.#handleClose();

@@ -24,24 +24,24 @@ export default class FilterPresenter {
     this.#filterModel.setActiveFilter(filterType);
   };
 
+  #handleModelChange = () => {
+    this.#updateFiltersView();
+  };
+
+  #handleFilterModelChange = () => {
+    this.#updateFiltersView();
+  };
+
   #renderFilters() {
-    const filters = generateFilters(
-      this.#model.getPoints(),
-      this.#filterModel.getActiveFilter()
-    );
+    const filters = this.#getFiltersData();
     this.#filtersComponent = new FiltersView(filters);
     this.#filtersComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
-
     render(this.#filtersComponent, this.#container);
   }
 
   #updateFiltersView() {
     const prevComponent = this.#filtersComponent;
-
-    const filters = generateFilters(
-      this.#model.getPoints(),
-      this.#filterModel.getActiveFilter()
-    );
+    const filters = this.#getFiltersData();
 
     this.#filtersComponent = new FiltersView(filters);
     this.#filtersComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
@@ -50,11 +50,10 @@ export default class FilterPresenter {
     remove(prevComponent);
   }
 
-  #handleModelChange = () => {
-    this.#updateFiltersView();
-  };
-
-  #handleFilterModelChange = () => {
-    this.#updateFiltersView();
-  };
+  #getFiltersData() {
+    return generateFilters(
+      this.#model.getPoints(),
+      this.#filterModel.getActiveFilter()
+    );
+  }
 }

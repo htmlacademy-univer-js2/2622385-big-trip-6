@@ -3,14 +3,13 @@ import { render, replace, remove, RenderPosition } from '../framework/render.js'
 import dayjs from 'dayjs';
 
 export default class TripInfoPresenter {
-  #container;
-  #model;
+  #container = null;
+  #model = null;
   #infoComponent = null;
 
   constructor({ container, model }) {
     this.#container = container;
     this.#model = model;
-
     this.#model.addObserver(this.#handleModelChange);
   }
 
@@ -18,9 +17,18 @@ export default class TripInfoPresenter {
     this.#renderInfo();
   }
 
+  #handleModelChange = () => {
+    const points = this.#model.getPoints();
+    if (!points.length) {
+      remove(this.#infoComponent);
+      this.#infoComponent = null;
+      return;
+    }
+    this.#renderInfo();
+  };
+
   #renderInfo() {
     const prevComponent = this.#infoComponent;
-
     this.#infoComponent = new InfoView(
       this.#getRouteTitle(),
       this.#getTripDates(),
@@ -28,12 +36,7 @@ export default class TripInfoPresenter {
     );
 
     if (!prevComponent) {
-      render(
-        this.#infoComponent,
-        this.#container,
-        RenderPosition.AFTERBEGIN
-      );
-
+      render(this.#infoComponent, this.#container, RenderPosition.AFTERBEGIN);
       return;
     }
 
@@ -41,26 +44,14 @@ export default class TripInfoPresenter {
     remove(prevComponent);
   }
 
-  #handleModelChange = () => {
-    const points = this.#model.getPoints();
-
-    if (!points.length) {
-      remove(this.#infoComponent);
-      this.#infoComponent = null;
-      return;
-    }
-
-    this.#renderInfo();
-  };
+  #getSortedPoints() {
+    return [...this.#model.getPoints()].sort((a, b) => a.dateFrom - b.dateFrom);
+  }
 
   #getRouteTitle() {
-    const points = [...this.#model.getPoints()]
-      .sort((a, b) => a.dateFrom - b.dateFrom);
-
+    const points = this.#getSortedPoints();
     const cities = points
-      .map((point) =>
-        this.#model.getDestinationById(point.destinationId)?.name
-      )
+      .map((point) => this.#model.getDestinationById(point.destinationId)?.name)
       .filter(Boolean);
 
     if (cities.length <= 3) {
@@ -71,9 +62,7 @@ export default class TripInfoPresenter {
   }
 
   #getTripDates() {
-    const points = [...this.#model.getPoints()]
-      .sort((a, b) => a.dateFrom - b.dateFrom);
-
+    const points = this.#getSortedPoints();
     if (!points.length) {
       return '';
     }
@@ -93,15 +82,8 @@ export default class TripInfoPresenter {
 
   #getPointPrice(point) {
     const offers = this.#model.getOffersByType(point.type);
-
-    const selectedOffers = offers.filter(
-      (offer) => point.offerIds.includes(offer.id)
-    );
-
-    const offersPrice = selectedOffers.reduce(
-      (sum, offer) => sum + offer.price,
-      0
-    );
+    const selectedOffers = offers.filter((offer) => point.offerIds.includes(offer.id));
+    const offersPrice = selectedOffers.reduce((sum, offer) => sum + offer.price, 0);
 
     return point.basePrice + offersPrice;
   }
