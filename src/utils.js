@@ -1,6 +1,11 @@
 import { FilterType } from './model/const';
+import he from 'he';
 
-export const getFilteredPoints = (points, filterType) => {
+const isEscapeKey = (evt) => evt.key === 'Escape';
+
+const encode = (value) => he.encode(String(value ?? ''));
+
+const getFilteredPoints = (points, filterType) => {
   const now = new Date();
   switch (filterType) {
     case FilterType.FUTURE:
@@ -56,3 +61,5 @@ export function generateFilters(points, currentFilterType) {
     },
   ];
 }
+
+export {encode, getFilteredPoints, isEscapeKey};

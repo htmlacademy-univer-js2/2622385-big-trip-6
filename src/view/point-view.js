@@ -1,5 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import dayjs from 'dayjs';
+import {encode} from '../utils.js';
 
 const MINUTES_IN_HOUR = 60;
 const MINUTES_IN_DAY = 24 * MINUTES_IN_HOUR;
@@ -85,7 +86,7 @@ export default class PointView extends AbstractStatefulView {
       <ul class="event__selected-offers">
         ${offers.map((offer) => `
           <li class="event__offer">
-            <span class="event__offer-title">${offer.title}</span>
+            <span class="event__offer-title">${encode(offer.title)}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${offer.price}</span>
           </li>
@@ -103,7 +104,7 @@ export default class PointView extends AbstractStatefulView {
           <div class="event__type">
             <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
           </div>
-          <h3 class="event__title">${point.type} ${destination?.name ?? ''}</h3>
+          <h3 class="event__title">${encode(point.type)} ${encode(destination?.name ?? '')}</h3>
           <div class="event__schedule">
             <p class="event__time">
               <time class="event__start-time" datetime="${dayjs(dateFrom).toISOString()}">${dayjs(dateFrom).format('HH:mm')}</time>
