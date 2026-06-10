@@ -2,6 +2,7 @@ import PointView from '../view/point-view.js';
 import PointEditView from '../view/point-edit-view.js';
 import { UserAction } from '../model/const.js';
 import { render, remove, replace } from '../framework/render.js';
+import { isEscapeKey } from '../utils.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -112,7 +113,7 @@ export default class PointPresenter {
   };
 
   #handleEscKeyDown = (evt) => {
-    if (evt.key === 'Escape') {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.#pointEditComponent.reset();
       this.#replaceFormToPoint();

@@ -1,6 +1,9 @@
 import InfoView from '../view/info-view.js';
 import { render, replace, remove, RenderPosition } from '../framework/render.js';
 import dayjs from 'dayjs';
+import { encode } from '../utils.js';
+
+const MAX_CITIES_IN_TITLE = 3;
 
 export default class TripInfoPresenter {
   #container = null;
@@ -54,11 +57,11 @@ export default class TripInfoPresenter {
       .map((point) => this.#model.getDestinationById(point.destinationId)?.name)
       .filter(Boolean);
 
-    if (cities.length <= 3) {
-      return cities.join(' — ');
+    if (cities.length <= MAX_CITIES_IN_TITLE) {
+      return cities.map((city) => encode(city)).join(' &mdash; ');
     }
 
-    return `${cities[0]} — ... — ${cities.at(-1)}`;
+    return `${encode(cities[0])} &mdash; ... &mdash; ${encode(cities[cities.length - 1])}`;
   }
 
   #getTripDates() {

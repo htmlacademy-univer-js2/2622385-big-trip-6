@@ -3,8 +3,11 @@ import TripPresenter from './presenter/trip-presenter.js';
 import FilterModel from './model/filter-model.js';
 import BigTripApi from './api/big-trip-api.js';
 
+const RANDOM_RADIX = 36;
+const TOKEN_START_INDEX = 2;
+
 if (localStorage.getItem('token') === null) {
-  localStorage.setItem('token', Math.random().toString(36).substring(2));
+  localStorage.setItem('token', Math.random().toString(RANDOM_RADIX).substring(TOKEN_START_INDEX));
 }
 
 const ENDPOINT = 'https://24.objects.htmlacademy.pro/big-trip';
