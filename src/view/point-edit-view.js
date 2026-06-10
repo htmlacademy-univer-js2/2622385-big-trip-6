@@ -266,6 +266,7 @@ export default class PointEditView extends AbstractStatefulView {
     this.element.querySelector('.event__type-group').addEventListener('change', this.#typeChangeHandler);
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__input--price').addEventListener('input', this.#priceChangeHandler);
+    this.element.querySelector('.event__available-offers')?.addEventListener('change', this.#offersChangeHandler);
     this.#setDatepickers();
     this.element
       .querySelector('.event__reset-btn')
@@ -350,6 +351,17 @@ export default class PointEditView extends AbstractStatefulView {
     this.#onRollupClick();
   };
 
+  #offersChangeHandler = (evt) => {
+    const offerId = Number(
+      evt.target.id.replace('event-offer-', '')
+    );
+    const offers = this._state.offers.includes(offerId)
+      ? this._state.offers.filter((id) => id !== offerId)
+      : [...this._state.offers, offerId];
+
+    this._setState({ offers });
+  };
+
   #typeChangeHandler = (evt) => {
     if (!evt.target.matches('.event__type-input')) {
       return;
@@ -419,7 +431,7 @@ export default class PointEditView extends AbstractStatefulView {
 
   setAborting() {
     this.resetControls();
-    this._setState({
+    this.updateElement({
       isDisabled: false,
       isSaving: false,
       isDeleting: false,
